@@ -12,6 +12,28 @@ import {
   AlertCircle 
 } from 'lucide-react';
 
+const stripPunct = (s) => s.replace(/[,।.?!]/g, ' ');
+
+// Finds whole phrasebook phrases in the text (longest first), in reading order.
+// Everything left over is returned as unrecognized words.
+export const matchPhrases = (text) => {
+  let rest = ` ${stripPunct(text).replace(/\s+/g, ' ').trim()} `;
+  const found = [];
+  [...phrasebookData]
+    .sort((a, b) => b.gujarati.length - a.gujarati.length)
+    .forEach(item => {
+      const phrase = stripPunct(item.gujarati).replace(/\s+/g, ' ').trim();
+      const i = rest.indexOf(` ${phrase} `);
+      if (i === -1) return;
+      found.push({ item, i });
+      rest = rest.slice(0, i + 1) + ' '.repeat(phrase.length) + rest.slice(i + 1 + phrase.length);
+    });
+  return {
+    matches: found.sort((a, b) => a.i - b.i).map(f => f.item),
+    unrecognized: rest.split(' ').filter(Boolean)
+  };
+};
+
 export const TextToSign = () => {
   const { setActiveVideoModal, speakText, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
@@ -21,33 +43,18 @@ export const TextToSign = () => {
   const [fingerspelledTokens, setFingerspelledTokens] = useState([]);
   const [activeSignIdx, setActiveSignIdx] = useState(0);
 
-  const handleTranslate = () => {
-    if (!inputText.trim()) return;
-
-    const words = inputText.trim().split(/[\s,।.]+/).filter(Boolean);
-    const matches = [];
-    const unrecognized = [];
-
-    words.forEach(word => {
-      const match = phrasebookData.find(item => 
-        item.gujarati.includes(word) || word.includes(item.gujarati)
-      );
-
-      if (match) {
-        matches.push(match);
-      } else {
-        unrecognized.push(word);
-      }
-    });
-
-    setMatchedPhrases(matches.length > 0 ? matches : [phrasebookData[0], phrasebookData[1]]);
+  const handleTranslate = (text = inputText) => {
+    if (!text.trim()) return;
+    const { matches, unrecognized } = matchPhrases(text);
+    // No guessing: words without an approved sign are only listed for fingerspelling
+    setMatchedPhrases(matches);
     setFingerspelledTokens(unrecognized);
     setActiveSignIdx(0);
   };
 
   const handleArticleClick = (article) => {
     setInputText(article.summary);
-    handleTranslate();
+    handleTranslate(article.summary);
   };
 
   return (
@@ -95,7 +102,7 @@ export const TextToSign = () => {
         {/* Action Button */}
         <div className="flex justify-end pt-2">
           <button
-            onClick={handleTranslate}
+            onClick={() => handleTranslate()}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md transition active:scale-95"
           >
             <span>{isEn ? 'Convert to Sign Language' : 'સાઇન લેંગ્વેજમાં રૂપાંતર કરો'}</span>
@@ -105,8 +112,16 @@ export const TextToSign = () => {
       </div>
 
       {/* ISL Output Player / Sequence Display */}
-      {matchedPhrases.length > 0 && (
+      {(matchedPhrases.length > 0 || fingerspelledTokens.length > 0) && (
         <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-4 shadow-lg space-y-4">
+          {matchedPhrases.length === 0 && (
+            <p className="text-sm font-bold text-amber-300">
+              {isEn
+                ? 'No approved sign found for this text in the phrasebook.'
+                : 'આ લખાણ માટે શબ્દકોષમાં માન્ય સંકેત મળ્યો નથી.'}
+            </p>
+          )}
+          {matchedPhrases.length > 0 && (<>
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
@@ -131,7 +146,9 @@ export const TextToSign = () => {
                 {matchedPhrases[activeSignIdx]?.signDescription}
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                {isEn ? 'Verified Source:' : 'ચકાસાયેલ સ્ત્રોત:'} {matchedPhrases[activeSignIdx]?.verifiedBy}
+                {matchedPhrases[activeSignIdx]?.verifiedBy
+                  ? `${isEn ? 'Reviewed by:' : 'ચકાસણી:'} ${matchedPhrases[activeSignIdx].verifiedBy}`
+                  : (isEn ? 'Draft sign description – not yet reviewed by an ISL educator' : 'ડ્રાફ્ટ વર્ણન – ISL શિક્ષક દ્વારા હજુ ચકાસાયેલ નથી')}
               </p>
             </div>
 
@@ -143,7 +160,9 @@ export const TextToSign = () => {
                   gujarati: cur.gujarati,
                   english: cur.english,
                   signDescription: cur.signDescription,
-                  category: cur.category
+                  category: cur.category,
+                  videoUrl: cur.videoUrl,
+                  verifiedBy: cur.verifiedBy
                 });
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
@@ -172,6 +191,8 @@ export const TextToSign = () => {
               );
             })}
           </div>
+
+          </>)}
 
           {/* Fallback Fingerspelling Notice */}
           {fingerspelledTokens.length > 0 && (
