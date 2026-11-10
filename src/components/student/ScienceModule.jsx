@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const ScienceModule = () => {
-  const { setActiveVideoModal, speakText, recordExerciseSuccess, uiLanguage } = useApp();
+  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
   
   const [selectedLesson, setSelectedLesson] = useState(scienceLessons[0]);
@@ -44,6 +44,8 @@ export const ScienceModule = () => {
     if (correct) {
       recordExerciseSuccess('science', 10, `Science: ${selectedLesson.title}`);
       speakText('Great job! Correct science answer.');
+    } else {
+      recordExerciseAttempt('science', false, `Science: ${selectedLesson.title}`);
     }
   };
 

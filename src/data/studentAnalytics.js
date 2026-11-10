@@ -16,6 +16,8 @@ export const initialStudentData = {
       completedLessons: 12,
       totalLessons: 14,
       accuracy: 92,
+      attempted: 25,
+      correct: 23,
       lastPracticed: 'આજે, ૨ કલાક પહેલાં',
       badges: ['મૂળાક્ષર માસ્ટર', 'સુંદર અક્ષર લેખન', 'વાક્ય નિર્માતા'],
       topics: [
@@ -31,6 +33,8 @@ export const initialStudentData = {
       completedLessons: 9,
       totalLessons: 12,
       accuracy: 84,
+      attempted: 25,
+      correct: 21,
       lastPracticed: 'ગઈકાલે સાંજે',
       badges: ['ઘડિયા ચેમ્પિયન', 'ઝડપી સરવાળા'],
       topics: [
@@ -46,6 +50,8 @@ export const initialStudentData = {
       completedLessons: 6,
       totalLessons: 8,
       accuracy: 88,
+      attempted: 25,
+      correct: 22,
       lastPracticed: '૨ દિવસ પહેલાં',
       badges: ['નાનો વિજ્ઞાની', 'પ્રકૃતિ મિત્ર'],
       topics: [

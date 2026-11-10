@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialStudentData, classStudents } from '../data/studentAnalytics';
 
 const AppContext = createContext();
+const STUDENT_KEY = 'gsl-student-v1';
 
 export const AppProvider = ({ children }) => {
   // Roles: 'student' | 'teacher' | 'parent' | 'hr'
@@ -20,7 +21,23 @@ export const AppProvider = ({ children }) => {
   const [audioEnabled, setAudioEnabled] = useState(true);
   
   // Learning & Analytics State
-  const [student, setStudent] = useState(initialStudentData);
+  // Saved in the browser so progress and assignments survive a refresh.
+  // shortcut: one device, one demo student; move to the backend API when it exists.
+  const [student, setStudent] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STUDENT_KEY)) || initialStudentData;
+    } catch {
+      return initialStudentData;
+    }
+  });
+  useEffect(() => {
+    localStorage.setItem(STUDENT_KEY, JSON.stringify(student));
+  }, [student]);
+
+  const addAssignment = (assignment) => setStudent(prev => ({
+    ...prev,
+    pendingAssignments: [{ id: `asg-${Date.now()}`, status: 'બાકી', ...assignment }, ...prev.pendingAssignments]
+  }));
   const [studentsList, setStudentsList] = useState(classStudents);
   
   // Selected lesson/letter for direct modal preview
@@ -48,32 +65,34 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Update student score/progress when an exercise is completed
-  const recordExerciseSuccess = (subjectKey, points = 10, topicName = '') => {
+  // Record every exercise attempt; accuracy = correct / attempted.
+  const recordExerciseAttempt = (subjectKey, isCorrect, topicName = '', points = 10) => {
     setStudent(prev => {
       const currentSubject = prev.subjects[subjectKey] || {};
-      const newAccuracy = Math.min(100, (currentSubject.accuracy || 80) + 1);
-      const newProgress = Math.min(100, (currentSubject.progress || 70) + 2);
-      
+      const attempted = (currentSubject.attempted || 0) + 1;
+      const correct = (currentSubject.correct || 0) + (isCorrect ? 1 : 0);
+
       const updatedSubject = {
         ...currentSubject,
-        progress: newProgress,
-        accuracy: newAccuracy,
+        attempted,
+        correct,
+        accuracy: Math.round((100 * correct) / attempted),
+        progress: isCorrect ? Math.min(100, (currentSubject.progress || 0) + 2) : currentSubject.progress,
         lastPracticed: uiLanguage === 'en' ? 'Just now' : 'હમણાં જ'
       };
 
       const newAttempt = {
         id: `att-${Date.now()}`,
-        subject: subjectKey === 'gujarati' ? 'Gujarati' : subjectKey === 'math' ? 'Mathematics' : 'Science',
+        subject: subjectKey === 'gujarati' ? 'ગુજરાતી' : subjectKey === 'math' ? 'ગણિત' : 'વિજ્ઞાન',
         topic: topicName || `${subjectKey} Practice`,
-        score: '10/10',
+        score: isCorrect ? '✓' : '✗',
         date: uiLanguage === 'en' ? 'Today' : 'આજે',
-        time: '5 mins'
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       return {
         ...prev,
-        totalStars: prev.totalStars + points,
+        totalStars: prev.totalStars + (isCorrect ? points : 0),
         subjects: {
           ...prev.subjects,
           [subjectKey]: updatedSubject
@@ -81,8 +100,13 @@ export const AppProvider = ({ children }) => {
         recentAttempts: [newAttempt, ...prev.recentAttempts.slice(0, 5)]
       };
     });
-    showToast(uiLanguage === 'en' ? `Well done! +${points} stars earned! ⭐` : `ખૂબ સરસ! +${points} તારા મળ્યા! ⭐`);
+    if (isCorrect) {
+      showToast(uiLanguage === 'en' ? `Well done! +${points} stars earned! ⭐` : `ખૂબ સરસ! +${points} તારા મળ્યા! ⭐`);
+    }
   };
+
+  const recordExerciseSuccess = (subjectKey, points = 10, topicName = '') =>
+    recordExerciseAttempt(subjectKey, true, topicName, points);
 
   return (
     <AppContext.Provider
@@ -106,7 +130,9 @@ export const AppProvider = ({ children }) => {
         toastMessage,
         showToast,
         speakText,
-        recordExerciseSuccess
+        recordExerciseSuccess,
+        recordExerciseAttempt,
+        addAssignment
       }}
     >
       {children}

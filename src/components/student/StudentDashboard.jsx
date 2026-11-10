@@ -196,6 +196,7 @@ export const StudentDashboard = () => {
                 onClick={() => {
                   if (asg.subject.includes('ગુજરાતી')) setActiveTab('gujarati');
                   else if (asg.subject.includes('ગણિત')) setActiveTab('math');
+                  else if (asg.subject.includes('વિજ્ઞાન')) setActiveTab('science');
                 }}
                 className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition active:scale-95 shrink-0"
               >

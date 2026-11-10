@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const TeacherDashboard = () => {
-  const { studentsList, showToast, uiLanguage } = useApp();
+  const { studentsList, showToast, uiLanguage, addAssignment } = useApp();
   const isEn = uiLanguage === 'en';
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +22,7 @@ export const TeacherDashboard = () => {
   const [selectedStudentForDetail, setSelectedStudentForDetail] = useState(null);
 
   const [assignmentTitle, setAssignmentTitle] = useState('');
-  const [assignmentSubject, setAssignmentSubject] = useState('Gujarati');
+  const [assignmentSubject, setAssignmentSubject] = useState('ગુજરાતી');
   const [dueDate, setDueDate] = useState('Nov 15, 2026');
 
   const filteredStudents = studentsList.filter(s => 
@@ -32,6 +32,13 @@ export const TeacherDashboard = () => {
   const handleCreateAssignment = (e) => {
     e.preventDefault();
     if (!assignmentTitle.trim()) return;
+
+    addAssignment({
+      title: assignmentTitle.trim(),
+      subject: assignmentSubject,
+      dueDate,
+      teacher: isEn ? 'Class Teacher' : 'વર્ગ શિક્ષક'
+    });
 
     showToast(isEn 
       ? `Assignment "${assignmentTitle}" assigned to all students!` 
@@ -216,9 +223,9 @@ export const TeacherDashboard = () => {
                   onChange={(e) => setAssignmentSubject(e.target.value)}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                 >
-                  <option value="Gujarati">{isEn ? 'Gujarati (Letters / Writing Pad)' : 'ગુજરાતી (મૂળાક્ષરો / વાક્ય લેખન)'}</option>
-                  <option value="Mathematics">{isEn ? 'Mathematics (Tables / Operations)' : 'ગણિત (ઘડિયા / સરવાળા-બાદબાકી)'}</option>
-                  <option value="Science">{isEn ? 'General Science (ISL Concept Signs)' : 'વિજ્ઞાન (સૂર્યમંડળ / પ્રયોગ સાઇન)'}</option>
+                  <option value="ગુજરાતી">{isEn ? 'Gujarati (Letters / Writing Pad)' : 'ગુજરાતી (મૂળાક્ષરો / વાક્ય લેખન)'}</option>
+                  <option value="ગણિત">{isEn ? 'Mathematics (Tables / Operations)' : 'ગણિત (ઘડિયા / સરવાળા-બાદબાકી)'}</option>
+                  <option value="વિજ્ઞાન">{isEn ? 'General Science (ISL Concept Signs)' : 'વિજ્ઞાન (સૂર્યમંડળ / પ્રયોગ સાઇન)'}</option>
                 </select>
               </div>
 
