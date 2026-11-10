@@ -11,7 +11,6 @@ export const gujaratiNumbers = [
     dots: 1,
     objectIcon: '☀️',
     objectName: 'એક સૂર્ય',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'ગોળ મીંડું કરી નીચે સીધી પૂંછડી ખેંચો'
   },
   {
@@ -25,7 +24,6 @@ export const gujaratiNumbers = [
     dots: 2,
     objectIcon: '👀',
     objectName: 'બે આંખો',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'ઉપરથી વળાંક લઈ નીચે આડી લીટી બનાવો'
   },
   {
@@ -39,7 +37,6 @@ export const gujaratiNumbers = [
     dots: 3,
     objectIcon: '🚦',
     objectName: 'ત્રણ ટ્રાફિક લાઇટ્સ',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'બે અર્ધગોળ એકબીજા નીચે જોડીને બનાવો'
   },
   {
@@ -53,7 +50,6 @@ export const gujaratiNumbers = [
     dots: 4,
     objectIcon: '🚗',
     objectName: 'કારના ચાર પૈડાં',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'ત્રાંસી લીટી લઈ ઉપરથી અડધી લૂપ બનાવો'
   },
   {
@@ -67,7 +63,6 @@ export const gujaratiNumbers = [
     dots: 5,
     objectIcon: '✋',
     objectName: 'હાથની પાંચ આંગળીઓ',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'અંગ્રેજી Y અથવા પા જેવો વળાંક'
   },
   {
@@ -81,7 +76,6 @@ export const gujaratiNumbers = [
     dots: 6,
     objectIcon: '🎲',
     objectName: 'પાસા પર છ ટપકાં',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'ઉંધો ત્રગડો બનાવી નીચે વળાંક આપો'
   },
   {
@@ -95,7 +89,6 @@ export const gujaratiNumbers = [
     dots: 7,
     objectIcon: '🌈',
     objectName: 'મેઘધનુષ્યના સાત રંગો',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'અર્ધગોળ બનાવી નીચે લંબાવો'
   },
   {
@@ -109,7 +102,6 @@ export const gujaratiNumbers = [
     dots: 8,
     objectIcon: '🐙',
     objectName: 'ઓક્ટોપસના આઠ પગ',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'અડધો ચોગડો બનાવી ઉપર લઈ જાઓ'
   },
   {
@@ -123,7 +115,6 @@ export const gujaratiNumbers = [
     dots: 9,
     objectIcon: '🪐',
     objectName: 'નવ ગ્રહો',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: 'ડાબી બાજુ અર્ધગોળ અને ઉપરથી આડી લીટી'
   },
   {
@@ -137,7 +128,6 @@ export const gujaratiNumbers = [
     dots: 10,
     objectIcon: '👐',
     objectName: 'બંને હાથના દસ આંગળા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     traceGuide: '૧ બનાવી બાજુમાં શૂન્ય (૦) બનાવો'
   }
 ];

@@ -7,8 +7,6 @@ export const phrasebookData = [
     tags: ['greeting', 'daily'],
     signDescription: 'બંને હાથ જોડી છાતી પાસે નમસ્કાર મુદ્રા કરો અને સહેજ નમન કરો.',
     category: 'અભિવાદન',
-    verifiedBy: 'ISLRTC Certified Sign Educator',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'આભાર',
@@ -16,8 +14,6 @@ export const phrasebookData = [
     tags: ['greeting', 'daily'],
     signDescription: 'જમણા હાથના ટેરવા રામચીબુક (ચિન) પર મૂકી સ્મિત સાથે આગળની તરફ લંબાવો.',
     category: 'અભિવાદન',
-    verifiedBy: 'ISLRTC Certified Sign Educator',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'શુભ સવાર',
@@ -25,8 +21,6 @@ export const phrasebookData = [
     tags: ['greeting', 'daily'],
     signDescription: 'સૂર્યોદય દર્શાવવા નીચેથી હાથ ઉપર લાવો, પછી સારા હોવાનો અંગૂઠો (Thumbs Up) દર્શાવો.',
     category: 'અભિવાદન',
-    verifiedBy: 'ISLRTC Certified Sign Educator',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'તમારું નામ શું છે?',
@@ -34,8 +28,6 @@ export const phrasebookData = [
     tags: ['interview', 'daily', 'question'],
     signDescription: 'તમારા તરફ હાથ કરો ("તમારું"), બંને હાથની H આંગળીઓ ટેપ કરો ("નામ"), અને પ્રશ્નાર્થ હાવભાવ સાથે હાથ ફેલાવો ("શું").',
     category: 'પ્રશ્નો',
-    verifiedBy: 'Deaf Educator Panel',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'હું વિદ્યાર્થી છું',
@@ -43,8 +35,6 @@ export const phrasebookData = [
     tags: ['school', 'student'],
     signDescription: 'છાતી પર હાથ ("હું"), કપાળથી પુસ્તક તરફ સાઇન ("અભ્યાસ કરનાર"), અને વ્યક્તિ નો સંકેત.',
     category: 'શાળા',
-    verifiedBy: 'Gujarat Special School Teacher',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'મને મદદ જોઈએ છે',
@@ -52,8 +42,6 @@ export const phrasebookData = [
     tags: ['emergency', 'daily'],
     signDescription: 'ડાબી હથેળી પર જમણી મુઠ્ઠી થમ્બ્સ અપ રાખી બંને હાથ એકસાથે ઉપર ઉઠાવો ("મદદ").',
     category: 'જરૂરિયાત',
-    verifiedBy: 'ISLRTC Certified Sign Educator',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'મને સમજાયું',
@@ -61,8 +49,6 @@ export const phrasebookData = [
     tags: ['learning', 'daily'],
     signDescription: 'તર્જની આંગળી માથા પાસે ઊભી કરી બલ્બ પેટાતો હોય તેમ હકારાત્મક માથું ધુણાવો.',
     category: 'શિક્ષણ',
-    verifiedBy: 'Deaf Educator Panel',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'ફરીથી સમજાવો',
@@ -70,8 +56,6 @@ export const phrasebookData = [
     tags: ['learning', 'school'],
     signDescription: 'હાથથી ગોળાકાર પુનરાવર્તન ("ફરીથી") અને બંને હથેળીઓ ખોલી સમજાવવાની મુદ્રા કરો.',
     category: 'શિક્ષણ',
-    verifiedBy: 'Gujarat Special School Teacher',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
 
   // HR & Interview specific phrases
@@ -81,8 +65,6 @@ export const phrasebookData = [
     tags: ['interview', 'hr'],
     signDescription: 'તમારા તરફ હથેળી દર્શાવી તમારી વિશે જણાવવા માટે બંને હાથ છાતીથી આગળ ખોલો.',
     category: 'ઇન્ટરવ્યુ',
-    verifiedBy: 'Corporate Inclusion Partner',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'તમારો અભ્યાસ શું છે?',
@@ -90,8 +72,6 @@ export const phrasebookData = [
     tags: ['interview', 'hr'],
     signDescription: 'ડિગ્રી ટોપી પહેરવાનો સંકેત અને પ્રશ્નાર્થ હાવભાવ સાથે હાથ ફેલાવો.',
     category: 'ઇન્ટરવ્યુ',
-    verifiedBy: 'Corporate Inclusion Partner',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'તમને કમ્પ્યુટર ચલાવતા આવડે છે?',
@@ -99,8 +79,6 @@ export const phrasebookData = [
     tags: ['interview', 'hr', 'technical'],
     signDescription: 'બંને હાથે કીબોર્ડ પર ટાઈપ કરવાનો અભિનય કરો અને આવડે છે નો પ્રશ્નાર્થ પૂછો.',
     category: 'ઇન્ટરવ્યુ',
-    verifiedBy: 'Corporate Inclusion Partner',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   },
   {
     gujarati: 'તમે ક્યારે જોડાઈ શકશો?',
@@ -108,8 +86,6 @@ export const phrasebookData = [
     tags: ['interview', 'hr'],
     signDescription: 'કેલેન્ડર તારીખનો સંકેત + બંને હાથ જોડી ટીમમાં જોડાવાનો સંકેત.',
     category: 'ઇન્ટરવ્યુ',
-    verifiedBy: 'Corporate Inclusion Partner',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4'
   }
 ];
 

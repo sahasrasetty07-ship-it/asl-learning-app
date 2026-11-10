@@ -10,7 +10,6 @@ export const scienceLessons = [
     summary: 'સૂર્યમંડળના કેન્દ્રમાં વિશાળ ધગધગતો સૂર્ય છે. પૃથ્વી સહિત આઠ ગ્રહો સૂર્યની આસપાસ નિયમિત કક્ષામાં પરિભ્રમણ કરે છે.',
     signTutorial: {
       title: 'સૂર્યમંડળનો ISL સંકેત',
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
       description: 'ડાબા હાથની મુઠ્ઠી વચ્ચે સૂર્ય તરીકે સ્થિર રાખો અને જમણા હાથની તર્જનીથી તેની આસપાસ ગોળાકાર ભ્રમણકક્ષા દર્શાવો.'
     },
     keyTerms: [
@@ -41,7 +40,6 @@ export const scienceLessons = [
     summary: 'લીલી વનસ્પતિ સૂર્યપ્રકાશ, પાણી અને કાર્બન ડાયોક્સાઇડ વાયુનો ઉપયોગ કરીને પોતાના પાંદડામાં ખોરાક (ગ્લુકોઝ) બનાવે છે અને આપણને પ્રાણવાયુ (ઓક્સિજન) આપે છે.',
     signTutorial: {
       title: 'પ્રકાશસંશ્લેષણનો ISL સંકેત',
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
       description: 'સૂર્યપ્રકાશ નીચે પાંદડા પર પડતો દર્શાવો (ઉપરથી કિરણો), મૂળમાંથી પાણી ખેંચાતું બતાવો (નીચેથી ઉપર હાથ), અને પર્ણમાંથી ઓક્સિજન બહાર આવતો દર્શાવો.'
     },
     keyTerms: [
@@ -71,7 +69,6 @@ export const scienceLessons = [
     summary: 'સૂર્યની ગરમીથી દરિયા અને નદીનું પાણી વરાળ બની આકાશમાં જાય છે (બાષ્પીભવન), ઠંડુ થઈ વાદળાં બને છે (સંઘનન), અને વરસાદ સ્વરૂપે પાછું જમીન પર આવે છે.',
     signTutorial: {
       title: 'જળચક્રનો ISL સંકેત',
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
       description: 'નીચે પાણી લહેરાતું બતાવો, હાથ ઉપર લઈ જઈ વરાળ દર્શાવો, બંને હાથે વાદળ બનાવી નીચે આંગળીઓથી વરસાદ વરસતો બતાવો.'
     },
     keyTerms: [
@@ -100,7 +97,6 @@ export const scienceLessons = [
     summary: 'આપણી આસપાસ રહેલી કોઈપણ વસ્તુ ત્રણ મુખ્ય સ્વરૂપે જોવા મળે છે: બરફ જેવો ઘન પદાર્થ, પાણી જેવો પ્રવાહી, અને વરાળ કે હવા જેવો વાયુ.',
     signTutorial: {
       title: 'દ્રવ્યની અવસ્થાઓનો ISL સંકેત',
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
       description: 'ઘન માટે મજબૂત મુઠ્ઠી પર ટકોરો, પ્રવાહી માટે રેલાતું પાણી, અને વાયુ માટે હવામાં ફેલાતી મુક્ત આંગળીઓ દર્શાવો.'
     },
     keyTerms: [

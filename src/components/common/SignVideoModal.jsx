@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Play, RotateCcw, Volume2, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, Volume2, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const SignVideoModal = () => {
   const { activeVideoModal, setActiveVideoModal, speakText, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
 
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.playbackRate = playbackRate;
+  }, [playbackRate, activeVideoModal]);
 
   if (!activeVideoModal) return null;
 
@@ -18,7 +22,8 @@ export const SignVideoModal = () => {
     signDescription, 
     handShape, 
     meaning, 
-    verifiedBy = 'Deaf ISL Educator Reviewed', 
+    verifiedBy,
+    videoUrl,
     category 
   } = activeVideoModal;
 
@@ -52,7 +57,19 @@ export const SignVideoModal = () => {
 
         {/* Video Simulation / Signer Display */}
         <div className="relative bg-slate-950 flex flex-col items-center justify-center min-h-[220px] sm:min-h-[260px] p-4 text-center overflow-hidden">
-          {/* Signer Visual Simulation Frame */}
+          {videoUrl ? (
+            <video
+              ref={videoRef}
+              key={videoUrl}
+              src={videoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls
+              className="w-full max-w-[360px] max-h-[240px] rounded-xl bg-black"
+            />
+          ) : (
           <div className="relative w-full max-w-[280px] h-[200px] bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-4 shadow-inner">
             <div className="relative flex items-center justify-center">
               <div className="w-24 h-24 rounded-full bg-amber-500/20 border-2 border-dashed border-amber-400 flex items-center justify-center text-4xl animate-pulse">
@@ -67,9 +84,10 @@ export const SignVideoModal = () => {
               {isEn ? `Sign for "${gujarati}"` : `"${gujarati}" નો સાઇન સંકેત`}
             </p>
             <p className="text-xs text-slate-300 mt-0.5">
-              {handShape || (isEn ? 'Standard ISL Handshape' : 'સત્તાવાર ISL હસ્તમુદ્રા')}
+              {isEn ? 'Video not recorded yet – follow the steps below' : 'વિડીયો હજુ ઉપલબ્ધ નથી – નીચેની વિગત અનુસરો'}
             </p>
           </div>
+          )}
 
           {/* Subtitles in Gujarati */}
           <div className="mt-3 bg-black/70 px-3 py-1.5 rounded-lg border border-white/10 max-w-sm">
@@ -79,7 +97,7 @@ export const SignVideoModal = () => {
           </div>
 
           {/* Controls Bar */}
-          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2 text-xs">
+          <div className="w-full max-w-[360px] mt-3 flex items-center justify-between text-xs">
             <div className="flex items-center gap-1 bg-black/60 p-1 rounded-md">
               <span className="text-[10px] text-slate-400 pl-1">{isEn ? 'Speed:' : 'સ્પીડ:'}</span>
               {[0.5, 0.75, 1].map(rate => (
@@ -116,6 +134,7 @@ export const SignVideoModal = () => {
             <p className="text-sm font-medium text-slate-800 mt-1 bg-amber-50/70 p-3 rounded-xl border border-amber-200">
               {signDescription}
             </p>
+            {handShape && <p className="text-xs text-slate-600 mt-1.5">✋ {handShape}</p>}
           </div>
 
           {meaning && (
@@ -127,15 +146,22 @@ export const SignVideoModal = () => {
             </div>
           )}
 
-          {/* Verification Badge */}
-          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl text-xs">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>
-              {isEn 
-                ? `Verified Resource: Reviewed by ${verifiedBy}` 
-                : `પ્રમાણિત સામગ્રી: ${verifiedBy} દ્વારા ચકાસાયેલ સંકેત.`}
-            </span>
-          </div>
+          {/* Review status: only claim review when a reviewer is recorded */}
+          {verifiedBy ? (
+            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl text-xs">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{isEn ? `Reviewed by ${verifiedBy}` : `${verifiedBy} દ્વારા ચકાસાયેલ સંકેત.`}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 p-2.5 rounded-xl text-xs">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>
+                {isEn
+                  ? 'Draft sign description – not yet reviewed by an ISL educator.'
+                  : 'ડ્રાફ્ટ વર્ણન – ISL શિક્ષક દ્વારા હજુ ચકાસાયેલ નથી.'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Modal Footer */}

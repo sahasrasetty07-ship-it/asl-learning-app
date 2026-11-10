@@ -12,7 +12,6 @@ export const gujaratiAlphabets = [
     icon: '🪷',
     signDescription: 'જમણા હાથની પાંચેય આંગળીઓ એકસાથે કળીની જેમ જોડીને ધીમેથી કમળ ખીલતું હોય તેમ ખોલો.',
     handShape: 'મુઠ્ઠીમાંથી પંજો ખુલવાની મુદ્રા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'વળાંકથી શરૂ કરી વચ્ચે નાની આડી રેખા દોરો'
@@ -29,7 +28,6 @@ export const gujaratiAlphabets = [
     icon: '🥣',
     signDescription: 'ડાબો હાથ વાટકા જેવો ગોળ રાખો અને જમણા હાથની મુઠ્ઠીથી તેમાં વાટવાનો અભિનય કરો.',
     handShape: 'ડાબો કપ આકાર, જમણી મુઠ્ઠી ગોળ ફરતી',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'ર જેવો વળાંક બનાવી નીચેથી જોડીને ઊભી લીટી'
@@ -46,7 +44,6 @@ export const gujaratiAlphabets = [
     icon: '🐘',
     signDescription: 'જમણા હાથને નાકની આગળ રાખી હાથીની સૂંઢ જેવો આગળ-પાછળ લહેરાતો સંકેત આપો.',
     handShape: 'સૂંઢ દર્શાવતો લહેરાતો હાથ',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'ડાબી બાજુ અર્ધગોળ અને બાજુમાં ઊભી લીટી'
@@ -63,7 +60,6 @@ export const gujaratiAlphabets = [
     icon: '🏠',
     signDescription: 'બંને હાથની આંગળીઓના ટેરવા સામસામે જોડીને ઘરના છાપરા (ત્રિકોણ) જેવો આકાર બનાવો.',
     handShape: 'બંને હાથ ત્રિકોણાકાર છાપરું દર્શાવતા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'બે અર્ધગોળ જોડીને સાથે ઊભી રેખા'
@@ -80,7 +76,6 @@ export const gujaratiAlphabets = [
     icon: '🐦',
     signDescription: 'અંગૂઠો અને તર્જની આંગળી મોં આગળ લાવી ચકલીની ચાંચની જેમ ખોલ-બંધ કરો.',
     handShape: 'ચાંચ મુદ્રા (ચપટી ખોલ-બંધ)',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'મધ્યમ',
     traceGuide: 'ગોળ વળાંક લઈ ઉપર જઈ સીધી ઊભી લીટી'
@@ -97,7 +92,6 @@ export const gujaratiAlphabets = [
     icon: '☂️',
     signDescription: 'ડાબા હાથે લાકડી પકડી હોય અને જમણા હાથે ઉપર છત્રી ખોલતા હોઈએ તેવો સંકેત કરો.',
     handShape: 'છત્રી ખોલવાની ક્રિયા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'મધ્યમ',
     traceGuide: 'ઘ જેવો આકાર બનાવી નીચે નાનું ગોળ મીંડું'
@@ -114,7 +108,6 @@ export const gujaratiAlphabets = [
     icon: '🍐',
     signDescription: 'હાથમાં ગોળ ફળ પકડી મોં પાસે લાવી બચકું ભરવાનો સંકેત કરો.',
     handShape: 'ફળ પકડી ખાવાનો અભિનય',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'ચોગડા જેવો આકાર બનાવી આગળ વળાંક'
@@ -131,7 +124,6 @@ export const gujaratiAlphabets = [
     icon: '🌳',
     signDescription: 'ડાબો હાથ થડ તરીકે સીધો રાખો અને જમણા હાથની આંગળીઓ વૃક્ષના પાંદડાની જેમ હલાવો.',
     handShape: 'ઝાડનું થડ અને લહેરાતી ડાળીઓ',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'મધ્યમ',
     traceGuide: 'ઉંધો ત્રગડો બનાવી નીચે વળાંકવાળી રેખા'
@@ -148,7 +140,6 @@ export const gujaratiAlphabets = [
     icon: '🍅',
     signDescription: 'બંને હાથ ગોળ ટમેટા જેવા રાખી લાલ રંગનો ઇશારો (હોઠને સ્પર્શ) કરો.',
     handShape: 'ગોળાકાર હાથ + લાલ રંગ સંકેત',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'અંગ્રેજી S અક્ષર જેવો વળાંક'
@@ -165,7 +156,6 @@ export const gujaratiAlphabets = [
     icon: '🚰',
     signDescription: 'હાથથી નળ ખોલવા માટે ચાવી ફેરવવાનો અને નીચે પાણી પડવાનો સંકેત કરો.',
     handShape: 'નળ ફેરવવાની મુદ્રા + પાણીની ધાર',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'મીંડા સાથે આડી લીટી અને ઊભી લાઇન'
@@ -182,7 +172,6 @@ export const gujaratiAlphabets = [
     icon: '🪁',
     signDescription: 'બંને હાથે પતંગની દોરી ખેંચતા અને ફિરકી પકડતા હોય તેવો સંકેત કરો.',
     handShape: 'દોરી ખેંચવાની ઉલ્લાસમય મુદ્રા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'વ્યંજન (Consonants)',
     difficulty: 'સરળ',
     traceGuide: 'યુ આકાર બનાવી સીધી ઊભી રેખા'
@@ -199,7 +188,6 @@ export const gujaratiAlphabets = [
     icon: '🍍',
     signDescription: 'અંગૂઠો ઊભો રાખી બાકીની આંગળીઓ વાળીને ‘A’ આકાર દર્શાવો.',
     handShape: 'ISL Vowel A મુદ્રા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'સ્વર (Vowels)',
     difficulty: 'સરળ',
     traceGuide: 'ત્રગડો બનાવી વચ્ચે ગાંઠ વાળી આડી અને ઊભી લીટી'
@@ -216,7 +204,6 @@ export const gujaratiAlphabets = [
     icon: '🥭',
     signDescription: 'અંગૂઠો ઊભો રાખી સાથે તર્જની ઊભી કરીને બે આંગળીઓથી કાનો દર્શાવો.',
     handShape: 'કાનો દર્શાવતી મુદ્રા',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-doing-sign-language-42646-large.mp4',
     category: 'સ્વર (Vowels)',
     difficulty: 'સરળ',
     traceGuide: 'અ બનાવી બાજુમાં કાનાની ઊભી લીટી'
