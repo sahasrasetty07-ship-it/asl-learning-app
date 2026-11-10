@@ -13,11 +13,50 @@ import {
   Video
 } from 'lucide-react';
 
+const CELL = 8; // grid cell size in CSS px used for scoring
+
+// Marks a grid cell "on" if any pixel inside it is drawn (alpha > 0).
+const toGrid = (img, scale, cols, rows) => {
+  const grid = new Uint8Array(cols * rows);
+  const step = CELL * scale;
+  for (let y = 0; y < img.height; y += 2) {
+    for (let x = 0; x < img.width; x += 2) {
+      if (img.data[(y * img.width + x) * 4 + 3] > 0) {
+        grid[Math.floor(y / step) * cols + Math.floor(x / step)] = 1;
+      }
+    }
+  }
+  return grid;
+};
+
+// Score 0-100: geometric mean of precision (ink that lies on the letter)
+// and coverage (letter that got inked), with a 2-cell tolerance for both.
+export const scoreGrids = (ink, target, cols, rows, tol = 2) => {
+  const near = (grid, i) => {
+    const cx = i % cols, cy = Math.floor(i / cols);
+    for (let dy = -tol; dy <= tol; dy++) {
+      for (let dx = -tol; dx <= tol; dx++) {
+        const x = cx + dx, y = cy + dy;
+        if (x >= 0 && y >= 0 && x < cols && y < rows && grid[y * cols + x]) return true;
+      }
+    }
+    return false;
+  };
+  let inkCount = 0, inkOnLetter = 0, targetCount = 0, targetCovered = 0;
+  for (let i = 0; i < ink.length; i++) {
+    if (ink[i]) { inkCount++; if (near(target, i)) inkOnLetter++; }
+    if (target[i]) { targetCount++; if (near(ink, i)) targetCovered++; }
+  }
+  if (!inkCount || !targetCount) return 0;
+  return Math.round(100 * Math.sqrt((inkOnLetter / inkCount) * (targetCovered / targetCount)));
+};
+
 export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', letterMeaning = '', onSignClick = null }) => {
-  const { speakText, recordExerciseSuccess, showToast, uiLanguage } = useApp();
+  const { speakText, recordExerciseAttempt, showToast, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
 
   const canvasRef = useRef(null);
+  const guideRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeCount, setStrokeCount] = useState(0);
   const [showGuide, setShowGuide] = useState(true);
@@ -78,7 +117,8 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = penWidth;
-    ctx.strokeStyle = isEraser ? '#ffffff' : penColor;
+    ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = penColor;
 
     setIsDrawing(true);
     setStrokeCount(prev => prev + 1);
@@ -118,30 +158,37 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
       return;
     }
 
-    const simulatedAccuracy = Math.floor(Math.random() * 15) + 85;
-    const stars = simulatedAccuracy >= 95 ? 3 : simulatedAccuracy >= 88 ? 2 : 1;
-    const messagesEn = [
-      'Excellent! Beautiful and clear character writing!',
-      'Great job! The character stroke curve is accurate.',
-      'Well done! You have mastered this character!'
-    ];
-    const messagesGu = [
-      'અદ્ભુત! સુંદર અને સ્પષ્ટ અક્ષર લેખન!',
-      'ખૂબ સરસ પ્રયાસ! અક્ષરનો વળાંક ઉત્તમ છે.',
-      'શાબાશ! તમે આ અક્ષર સરસ રીતે શીખી ગયા!'
-    ];
-    const msg = isEn 
-      ? messagesEn[Math.floor(Math.random() * messagesEn.length)]
-      : messagesGu[Math.floor(Math.random() * messagesGu.length)];
+    const canvas = canvasRef.current;
+    const scale = canvas.width / canvas.getBoundingClientRect().width;
+    const cols = Math.ceil(canvas.width / (CELL * scale));
+    const rows = Math.ceil(canvas.height / (CELL * scale));
 
-    setScoreResult({
-      score: simulatedAccuracy,
-      message: msg,
-      stars: stars
-    });
+    // Draw the letter exactly like the on-screen guide, off-screen, to compare against
+    const ref = document.createElement('canvas');
+    ref.width = canvas.width;
+    ref.height = canvas.height;
+    const rctx = ref.getContext('2d');
+    const guideStyle = getComputedStyle(guideRef.current);
+    rctx.font = `${guideStyle.fontWeight} ${parseFloat(guideStyle.fontSize) * scale}px ${guideStyle.fontFamily}`;
+    rctx.textAlign = 'center';
+    rctx.textBaseline = 'middle';
+    rctx.fillText(targetLetter, ref.width / 2, ref.height / 2);
 
-    recordExerciseSuccess('gujarati', 10, `Letter '${targetLetter}' Practice`);
-    speakText(targetLetter);
+    const ink = toGrid(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height), scale, cols, rows);
+    const target = toGrid(rctx.getImageData(0, 0, ref.width, ref.height), scale, cols, rows);
+    const score = scoreGrids(ink, target, cols, rows);
+    const stars = score >= 85 ? 3 : score >= 70 ? 2 : score >= 60 ? 1 : 0;
+
+    const message = stars === 3
+      ? (isEn ? 'Excellent! Clear and accurate letter.' : 'અદ્ભુત! સુંદર અને સ્પષ્ટ અક્ષર લેખન!')
+      : stars > 0
+        ? (isEn ? 'Good try! Follow the guide shape more closely.' : 'સરસ પ્રયાસ! માર્ગદર્શક આકારને વધુ નજીકથી અનુસરો.')
+        : (isEn ? 'Not quite. Trace over the grey letter and try again.' : 'હજુ નહીં. ઝાંખા અક્ષર પર ઘૂંટીને ફરી પ્રયત્ન કરો.');
+
+    setScoreResult({ score, message, stars });
+
+    recordExerciseAttempt('gujarati', stars > 0, `Letter '${targetLetter}' Practice`, stars * 5);
+    if (stars > 0) speakText(targetLetter);
   };
 
   return (
@@ -181,13 +228,12 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
 
       {/* Canvas Drawing Area with watermark guide */}
       <div className="relative w-full h-[240px] sm:h-[280px] bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden flex items-center justify-center">
-        {showGuide && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-20">
-            <span className="text-[160px] sm:text-[190px] font-black text-slate-900 leading-none">
+        {/* Guide stays mounted (invisible when off) so scoring can read its font */}
+        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none select-none ${showGuide ? 'opacity-20' : 'opacity-0'}`}>
+            <span ref={guideRef} className="text-[160px] sm:text-[190px] font-black text-slate-900 leading-none">
               {targetLetter}
             </span>
-          </div>
-        )}
+        </div>
 
         <canvas
           ref={canvasRef}
@@ -300,9 +346,11 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
                 {[...Array(scoreResult.stars)].map((_, i) => (
                   <Sparkles key={i} className="w-4 h-4 text-amber-500 fill-amber-400" />
                 ))}
-                <span className="text-xs font-bold text-emerald-800 ml-1">
-                  +{scoreResult.stars * 5} {isEn ? 'Stars!' : 'પોઇન્ટ્સ!'}
-                </span>
+                {scoreResult.stars > 0 && (
+                  <span className="text-xs font-bold text-emerald-800 ml-1">
+                    +{scoreResult.stars * 5} {isEn ? 'Stars!' : 'પોઇન્ટ્સ!'}
+                  </span>
+                )}
               </div>
               <p className="text-xs font-medium text-emerald-900 mt-0.5">{scoreResult.message}</p>
             </div>
