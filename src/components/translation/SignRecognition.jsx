@@ -49,9 +49,8 @@ export const SignRecognition = () => {
       } catch (err) {
         console.warn('Camera permission denied or unavailable:', err);
         setCameraError(isEn 
-          ? 'Camera not accessible or permission denied. Running in simulated ISL landmark mode.' 
-          : 'કેમેરા સેટિંગ્સ ઉપલબ્ધ નથી અથવા મંજૂરી નકારાઈ. સિમ્યુલેટેડ મોડમાં સંકેત ઓળખ ચાલુ છે.');
-        setIsCameraActive(true);
+          ? 'Camera not accessible or permission denied.' 
+          : 'કેમેરા ઉપલબ્ધ નથી અથવા મંજૂરી નકારાઈ.');
       }
     }
   };
@@ -126,9 +125,8 @@ export const SignRecognition = () => {
       <div className="bg-slate-900 rounded-2xl border border-slate-800 p-4 shadow-xl text-white space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              MediaPipe ISL Sign Recognition
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+              {isEn ? 'Sign Recognition – Prototype' : 'સાઇન ઓળખ – પ્રોટોટાઇપ'}
             </span>
           </div>
 
@@ -157,6 +155,12 @@ export const SignRecognition = () => {
               <span>{isCameraActive ? (isEn ? 'Stop Camera' : 'કેમેરા બંધ') : (isEn ? 'Start Camera' : 'કેમેરા શરૂ')}</span>
             </button>
           </div>
+        </div>
+
+        <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs">
+          {isEn
+            ? 'Recognition model not connected yet. The hand overlay is a sample drawing; pick a test sign below to try the sentence builder.'
+            : 'ઓળખ મોડેલ હજુ જોડાયેલ નથી. હાથનું ચિત્ર નમૂનો છે; વાક્ય બનાવવા નીચેથી ટેસ્ટ સાઇન પસંદ કરો.'}
         </div>
 
         {/* Viewport for Video + Canvas Overlay */}
@@ -196,12 +200,8 @@ export const SignRecognition = () => {
           {/* HUD Bounding Box and Confidence Overlay */}
           <div className="absolute top-3 left-3 bg-black/75 backdrop-blur border border-white/10 rounded-lg p-2 text-xs z-30">
             <div className="flex items-center gap-2">
-              <span className="text-emerald-400 font-bold">{isEn ? 'Detected Sign:' : 'ઓળખાયેલ સાઇન:'}</span>
+              <span className="text-amber-400 font-bold">{isEn ? 'Test sign:' : 'ટેસ્ટ સાઇન:'}</span>
               <span className="font-extrabold text-white">{currentGesture.gesture}</span>
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-slate-400 text-[11px]">{isEn ? 'Confidence Score:' : 'વિશ્વાસ દર:'}</span>
-              <span className="text-amber-400 font-mono font-bold">{currentGesture.confidence}%</span>
             </div>
           </div>
 
@@ -219,7 +219,7 @@ export const SignRecognition = () => {
         {/* Gesture switcher to test different signs */}
         <div>
           <span className="text-xs font-bold text-slate-400 block mb-1.5">
-            {isEn ? 'Simulate Sign Input (Select to Test):' : 'કસોટી માટે સાઇન પસંદ કરો:'}
+            {isEn ? 'Test signs (manual input until the model is ready):' : 'ટેસ્ટ સાઇન (મોડેલ તૈયાર થાય ત્યાં સુધી):'}
           </span>
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {recognizedGesturesList.map((g, idx) => {
