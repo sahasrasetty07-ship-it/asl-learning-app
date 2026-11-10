@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { mathLessons } from '../../data/mathLessons';
+import { mathLessons, generateProblem } from '../../data/mathLessons';
 import { 
   Calculator, 
   Table, 
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const MathModule = () => {
-  const { setActiveVideoModal, speakText, recordExerciseSuccess, showToast, uiLanguage } = useApp();
+  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, showToast, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
   
   // Sub-tabs: 'tables' | 'operations' | 'practice'
@@ -25,34 +25,39 @@ export const MathModule = () => {
   const [selectedTable, setSelectedTable] = useState(mathLessons.tables[0]);
   const [selectedOp, setSelectedOp] = useState(mathLessons.operations[0]);
   
-  // Practice quiz state
-  const [activeProblemIdx, setActiveProblemIdx] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
+  // Practice quiz state: endless generated problems, answered on a Gujarati digit keypad
+  const [practiceType, setPracticeType] = useState('mixed');
+  const [currentProblem, setCurrentProblem] = useState(() => generateProblem());
+  const [problemCount, setProblemCount] = useState(1);
+  const [answerInput, setAnswerInput] = useState('');
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  const currentProblem = mathLessons.practiceProblems[activeProblemIdx];
+  const newProblem = (type = practiceType) => {
+    setCurrentProblem(generateProblem(type === 'mixed' ? undefined : type));
+    setAnswerInput('');
+    setIsAnswered(false);
+    setIsCorrect(false);
+  };
 
-  const handleAnswerSubmit = (option) => {
-    if (isAnswered) return;
-    setSelectedOption(option);
+  const handleAnswerSubmit = () => {
+    if (isAnswered || !answerInput) return;
     setIsAnswered(true);
-    const correct = option === currentProblem.correctAnswer;
+    const correct = answerInput === currentProblem.correctAnswer;
     setIsCorrect(correct);
 
     if (correct) {
       recordExerciseSuccess('math', 10, `Math: ${currentProblem.question}`);
       speakText('Correct answer! Well done!');
     } else {
+      recordExerciseAttempt('math', false, `Math: ${currentProblem.question}`);
       speakText('Try again. Check the correct answer.');
     }
   };
 
   const handleNextProblem = () => {
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setIsCorrect(false);
-    setActiveProblemIdx((prev) => (prev + 1) % mathLessons.practiceProblems.length);
+    setProblemCount(c => c + 1);
+    newProblem();
   };
 
   return (
@@ -119,7 +124,7 @@ export const MathModule = () => {
       {/* ===================== SUBTAB 1: TABLES (ઘડિયા) ===================== */}
       {subTab === 'tables' && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {mathLessons.tables.map(t => (
               <button
                 key={t.id}
@@ -260,11 +265,24 @@ export const MathModule = () => {
       {/* ===================== SUBTAB 3: PRACTICE ASSESSMENT ===================== */}
       {subTab === 'practice' && (
         <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {[{ id: 'mixed', title: isEn ? 'Mixed' : 'મિશ્ર' }, ...mathLessons.operations].map(op => (
+              <button
+                key={op.id}
+                onClick={() => { setPracticeType(op.id); newProblem(op.id); }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                  practiceType === op.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {op.title}
+              </button>
+            ))}
+          </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
-                  {isEn ? `Question ${activeProblemIdx + 1} of ${mathLessons.practiceProblems.length}` : `પ્રશ્ન ${activeProblemIdx + 1} / ${mathLessons.practiceProblems.length}`}
+                  {isEn ? `Question ${problemCount}` : `પ્રશ્ન ${problemCount}`}
                 </span>
                 <span className="text-xs text-slate-500 font-medium">{isEn ? 'Math Assessment' : 'ગણિત મૂલ્યાંકન'}</span>
               </div>
@@ -289,39 +307,46 @@ export const MathModule = () => {
               </p>
             </div>
 
-            {/* Multiple Choice Options */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              {currentProblem.options.map((option, idx) => {
-                const isSelected = selectedOption === option;
-                let btnStyle = 'bg-white border-2 border-slate-200 hover:border-blue-400 text-slate-800';
+            {/* Answer box + Gujarati digit keypad */}
+            <div className="flex items-center justify-center gap-2">
+              <div className={`min-w-[120px] px-4 py-3 rounded-2xl border-2 text-3xl font-black text-center ${
+                !isAnswered ? 'border-blue-400 bg-white text-slate-900'
+                  : isCorrect ? 'border-emerald-600 bg-emerald-500 text-white' : 'border-rose-600 bg-rose-500 text-white'
+              }`}>
+                {answerInput || <span className="text-slate-300">?</span>}
+              </div>
+              {isAnswered && (isCorrect
+                ? <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                : <XCircle className="w-7 h-7 text-rose-600" />)}
+            </div>
 
-                if (isAnswered) {
-                  if (option === currentProblem.correctAnswer) {
-                    btnStyle = 'bg-emerald-500 border-emerald-600 text-white shadow-md';
-                  } else if (isSelected) {
-                    btnStyle = 'bg-rose-500 border-rose-600 text-white shadow-md';
-                  } else {
-                    btnStyle = 'bg-slate-100 border-slate-200 text-slate-400 opacity-60';
-                  }
-                }
-
-                return (
-                  <button
-                    key={idx}
-                    disabled={isAnswered}
-                    onClick={() => handleAnswerSubmit(option)}
-                    className={`py-4 rounded-2xl font-black text-2xl transition-all active:scale-95 flex items-center justify-center gap-2 ${btnStyle}`}
-                  >
-                    <span>{option}</span>
-                    {isAnswered && option === currentProblem.correctAnswer && (
-                      <CheckCircle2 className="w-6 h-6 text-white" />
-                    )}
-                    {isAnswered && isSelected && option !== currentProblem.correctAnswer && (
-                      <XCircle className="w-6 h-6 text-white" />
-                    )}
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-5 gap-2 pt-1">
+              {'૧૨૩૪૫૬૭૮૯૦'.split('').map(d => (
+                <button
+                  key={d}
+                  disabled={isAnswered || answerInput.length >= 3}
+                  onClick={() => setAnswerInput(v => v + d)}
+                  className="py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-blue-400 text-2xl font-black text-slate-800 transition active:scale-95 disabled:opacity-40"
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                disabled={isAnswered || !answerInput}
+                onClick={() => setAnswerInput(v => v.slice(0, -1))}
+                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition disabled:opacity-40"
+              >
+                {isEn ? '⌫ Delete' : '⌫ ભૂંસો'}
+              </button>
+              <button
+                disabled={isAnswered || !answerInput}
+                onClick={handleAnswerSubmit}
+                className="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition disabled:opacity-40"
+              >
+                {isEn ? 'Check Answer' : 'જવાબ તપાસો'}
+              </button>
             </div>
 
             {isAnswered && (

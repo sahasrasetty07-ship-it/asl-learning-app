@@ -81,48 +81,51 @@ export const mathLessons = {
       visual: '🍫🍫🍫🍫🍫🍫 ÷ ૨ = 🍫🍫🍫 દરેકને',
       color: 'bg-purple-500'
     }
-  ],
-  practiceProblems: [
-    {
-      id: 'p1',
-      type: 'addition',
-      question: '૪ + ૩ = ?',
-      questionGujarati: 'ચાર વત્તા ત્રણ બરાબર કેટલા થાય?',
-      options: ['૬', '૭', '૮', '૫'],
-      correctAnswer: '૭',
-      explanation: '૪ માં ૩ ઉમેરતા: ૫, ૬, ૭ થાય. સાચો જવાબ ૭ (સાત) છે.',
-      signHint: 'પહેલા ૪ આંગળીઓ અને પછી ૩ આંગળીઓ ગણો.'
-    },
-    {
-      id: 'p2',
-      type: 'subtraction',
-      question: '૮ - ૩ = ?',
-      questionGujarati: 'આઠ માંથી ત્રણ બાદ કરતા કેટલા વધે?',
-      options: ['૪', '૫', '૬', '૩'],
-      correctAnswer: '૫',
-      explanation: '૮ માંથી ૩ કાઢતા ૫ વધે. સાચો જવાબ ૫ (પાંચ) છે.',
-      signHint: 'આઠ આંગળીઓમાંથી ત્રણ વાળી લો.'
-    },
-    {
-      id: 'p3',
-      type: 'multiplication',
-      question: '૨ × ૪ = ?',
-      questionGujarati: 'બે ચોક કેટલા થાય?',
-      options: ['૬', '૮', '૧૦', '૪'],
-      correctAnswer: '૮',
-      explanation: '૨ ચોક ૮ (બે ના ચાર જૂથ: ૨ + ૨ + ૨ + ૨ = ૮). સાચો જવાબ ૮ છે.',
-      signHint: '૨ નો ઘડિયો ૪ સુધી બોલો: બે એકા બે, બે દુ ચાર, બે તેરી છ, બે ચોક આઠ.'
-    },
-    {
-      id: 'p4',
-      type: 'division',
-      question: '૧૦ ÷ ૨ = ?',
-      questionGujarati: 'દસ ભાગ્યા બે બરાબર કેટલા?',
-      options: ['૨', '૪', '૫', '૩'],
-      correctAnswer: '૫',
-      explanation: '૧૦ ના બે સરખા ભાગ કરતા ૫ મળે. સાચો જવાબ ૫ (પાંચ) છે.',
-      signHint: '૧૦ ચોકલેટ ૨ મિત્રોને વહેંચો તો દરેકને ૫-૫ મળે.'
-    }
   ]
 };
 
+// Converts 12 -> '૧૨'
+export const toGujaratiDigits = (n) => String(n).replace(/\d/g, d => '૦૧૨૩૪૫૬૭૮૯'[d]);
+
+// Tables 2 and 5 keep their hand-written traditional recitation; the rest are generated.
+const makeTable = (n) => ({
+  id: `table-${n}`,
+  title: `${toGujaratiDigits(n)} નો ઘડિયો (Table of ${n})`,
+  number: n,
+  gujaratiNumeral: toGujaratiDigits(n),
+  signOverview: `${toGujaratiDigits(n)} નો સંકેત રાખી ક્રમશઃ ગુણાકાર કરવાનો સાઇન સંકેત.`,
+  rows: Array.from({ length: 10 }, (_, i) => {
+    const [a, b, c] = [n, i + 1, n * (i + 1)].map(toGujaratiDigits);
+    return { exp: `${a} × ${b} = ${c}`, speech: `${a} ગુણ્યા ${b} બરાબર ${c}`, eng: `${n} x ${i + 1} = ${n * (i + 1)}`, result: c };
+  })
+});
+mathLessons.tables = Array.from({ length: 9 }, (_, i) => i + 2)
+  .map(n => mathLessons.tables.find(t => t.number === n) || makeTable(n));
+
+const OPS = {
+  addition: { symbol: '+', word: 'વત્તા' },
+  subtraction: { symbol: '-', word: 'ઓછા' },
+  multiplication: { symbol: '×', word: 'ગુણ્યા' },
+  division: { symbol: '÷', word: 'ભાગ્યા' }
+};
+const rand = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+
+// Random practice problem with a whole-number answer. type: one of OPS keys, or random.
+export const generateProblem = (type = Object.keys(OPS)[rand(0, 3)]) => {
+  let a, b, answer;
+  if (type === 'addition') { a = rand(1, 20); b = rand(1, 20); answer = a + b; }
+  if (type === 'subtraction') { a = rand(2, 20); b = rand(1, a); answer = a - b; }
+  if (type === 'multiplication') { a = rand(2, 10); b = rand(1, 10); answer = a * b; }
+  if (type === 'division') { b = rand(2, 10); answer = rand(1, 10); a = b * answer; }
+  const [ga, gb, gans] = [a, b, answer].map(toGujaratiDigits);
+  const op = OPS[type];
+  return {
+    id: `${type}-${a}-${b}-${Date.now()}`,
+    type,
+    question: `${ga} ${op.symbol} ${gb} = ?`,
+    questionGujarati: `${ga} ${op.word} ${gb} બરાબર કેટલા?`,
+    correctAnswer: gans,
+    explanation: `${ga} ${op.symbol} ${gb} = ${gans}. સાચો જવાબ ${gans} છે.`,
+    signHint: mathLessons.operations.find(o => o.id === type).signDescription
+  };
+};
