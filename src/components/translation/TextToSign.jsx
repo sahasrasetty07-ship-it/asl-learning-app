@@ -1,0 +1,226 @@
+import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
+import { phrasebookData, sampleArticles } from '../../data/phrasebookData';
+import { 
+  ArrowRight, 
+  RotateCcw, 
+  Volume2, 
+  Video, 
+  Sparkles, 
+  Newspaper, 
+  CheckCircle, 
+  AlertCircle 
+} from 'lucide-react';
+
+export const TextToSign = () => {
+  const { setActiveVideoModal, speakText, uiLanguage } = useApp();
+  const isEn = uiLanguage === 'en';
+
+  const [inputText, setInputText] = useState('નમસ્તે, મારું નામ આરવ છે. હું શાળાએ જાઉં છું.');
+  const [matchedPhrases, setMatchedPhrases] = useState([]);
+  const [fingerspelledTokens, setFingerspelledTokens] = useState([]);
+  const [activeSignIdx, setActiveSignIdx] = useState(0);
+
+  const handleTranslate = () => {
+    if (!inputText.trim()) return;
+
+    const words = inputText.trim().split(/[\s,।.]+/).filter(Boolean);
+    const matches = [];
+    const unrecognized = [];
+
+    words.forEach(word => {
+      const match = phrasebookData.find(item => 
+        item.gujarati.includes(word) || word.includes(item.gujarati)
+      );
+
+      if (match) {
+        matches.push(match);
+      } else {
+        unrecognized.push(word);
+      }
+    });
+
+    setMatchedPhrases(matches.length > 0 ? matches : [phrasebookData[0], phrasebookData[1]]);
+    setFingerspelledTokens(unrecognized);
+    setActiveSignIdx(0);
+  };
+
+  const handleArticleClick = (article) => {
+    setInputText(article.summary);
+    handleTranslate();
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Gujarati Text Input Box */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            {isEn ? 'Enter Gujarati Text or Article:' : 'ગુજરાતી લખાણ / સમાચાર દાખલ કરો:'}
+          </label>
+          <button
+            onClick={() => speakText(inputText)}
+            className="text-xs text-amber-700 hover:text-amber-800 font-bold flex items-center gap-1"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>{isEn ? 'Listen to Text' : 'ટેક્સ્ટ સાંભળો'}</span>
+          </button>
+        </div>
+
+        <textarea
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder={isEn ? "Type Gujarati text here or select from sample articles below..." : "અહીં ગુજરાતીમાં લખો અથવા નીચે આપેલા નમૂના સમાચાર પસંદ કરો..."}
+          rows={3}
+          className="w-full p-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-medium resize-none"
+        />
+
+        {/* Quick sample chips */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] text-slate-400 font-bold">{isEn ? 'Quick Phrases:' : 'ઝડપી વાક્યો:'}</span>
+          {['નમસ્તે', 'મને મદદ જોઈએ છે', 'હું વિદ્યાર્થી છું', 'આભાર'].map(txt => (
+            <button
+              key={txt}
+              onClick={() => {
+                setInputText(txt);
+              }}
+              className="text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 px-2 py-1 rounded-lg transition border border-slate-200"
+            >
+              {txt}
+            </button>
+          ))}
+        </div>
+
+        {/* Action Button */}
+        <div className="flex justify-end pt-2">
+          <button
+            onClick={handleTranslate}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md transition active:scale-95"
+          >
+            <span>{isEn ? 'Convert to Sign Language' : 'સાઇન લેંગ્વેજમાં રૂપાંતર કરો'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* ISL Output Player / Sequence Display */}
+      {matchedPhrases.length > 0 && (
+        <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-4 shadow-lg space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                {isEn ? 'ISL Sign Output' : 'ISL સંકેત પરિણામ'}
+              </span>
+              <h3 className="text-base font-bold text-white mt-0.5">
+                "{matchedPhrases[activeSignIdx]?.gujarati || 'સાઇન'}"
+              </h3>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+              <span>{isEn ? 'Sequence:' : 'ક્રમ:'} {activeSignIdx + 1} / {matchedPhrases.length}</span>
+            </div>
+          </div>
+
+          {/* Virtual Signer Box */}
+          <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3 min-h-[200px]">
+            <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center text-3xl animate-pulse">
+              🤟
+            </div>
+            <div>
+              <p className="text-sm font-bold text-amber-300">
+                {matchedPhrases[activeSignIdx]?.signDescription}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                {isEn ? 'Verified Source:' : 'ચકાસાયેલ સ્ત્રોત:'} {matchedPhrases[activeSignIdx]?.verifiedBy}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                const cur = matchedPhrases[activeSignIdx];
+                setActiveVideoModal({
+                  title: cur.gujarati,
+                  gujarati: cur.gujarati,
+                  english: cur.english,
+                  signDescription: cur.signDescription,
+                  category: cur.category
+                });
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Play Sign Video Clip' : 'વિડીયો ક્લિપ પ્લે કરો'}</span>
+            </button>
+          </div>
+
+          {/* Sign Sequence Stepper */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {matchedPhrases.map((phrase, idx) => {
+              const isActive = activeSignIdx === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSignIdx(idx)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${
+                    isActive
+                      ? 'bg-amber-500 text-slate-950 shadow-md ring-2 ring-white/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  {idx + 1}. {phrase.gujarati}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Fallback Fingerspelling Notice */}
+          {fingerspelledTokens.length > 0 && (
+            <div className="bg-amber-950/40 border border-amber-700/50 rounded-xl p-3 text-xs text-amber-200 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <strong>{isEn ? 'Fingerspelling Fallback:' : 'ફિંગર-સ્પેલિંગ:'}</strong>{' '}
+                {isEn ? 'Words ' : 'શબ્દો '}
+                <span className="font-bold underline">{fingerspelledTokens.join(', ')}</span>{' '}
+                {isEn 
+                  ? 'are not in the curated dictionary and will be fingerspelled letter-by-letter.' 
+                  : 'સીધા શબ્દકોષમાં નથી, તેથી ISL નિયમ મુજબ એક-એક અક્ષરથી હસ્તમુદ્રા દ્વારા રજૂ થશે.'}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Curated Gujarati News & Articles for Translation Testing */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div className="flex items-center gap-2 text-slate-800">
+          <Newspaper className="w-4 h-4 text-amber-600" />
+          <h4 className="text-xs font-bold uppercase tracking-wider">
+            {isEn ? 'Curated Sample Articles & News' : 'નમૂના સમાચાર / આર્ટિકલ અનુવાદ'}
+          </h4>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {sampleArticles.map(art => (
+            <div
+              key={art.id}
+              className="bg-slate-50 hover:bg-amber-50/50 p-3.5 rounded-xl border border-slate-200 transition flex flex-col justify-between space-y-2 cursor-pointer"
+              onClick={() => handleArticleClick(art)}
+            >
+              <div>
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
+                  {art.category}
+                </span>
+                <h5 className="text-xs font-bold text-slate-900 mt-1 leading-snug">{art.title}</h5>
+                <p className="text-[11px] text-slate-600 mt-1 line-clamp-2">{art.summary}</p>
+              </div>
+              <button className="text-[11px] font-bold text-amber-700 flex items-center gap-1 self-start hover:underline">
+                <span>{isEn ? 'Translate to ISL' : 'સાઇન લેંગ્વેજમાં જુઓ'}</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
