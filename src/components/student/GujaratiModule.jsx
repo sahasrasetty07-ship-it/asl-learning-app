@@ -31,6 +31,38 @@ export const GujaratiModule = () => {
     return item.type === filterCategory;
   });
 
+  // ── Navigation helpers ─────────────────────────────────────────────────────
+  const letterIndex = filteredAlphabets.findIndex(item => item.id === selectedLetter.id);
+  const numberIndex = gujaratiNumbers.findIndex(item => item.id === selectedNumber.id);
+
+  const handlePreviousLetter = () => {
+    const idx = letterIndex > 0 ? letterIndex - 1 : 0;
+    const item = filteredAlphabets[idx];
+    setSelectedLetter(item);
+    speakText(item.letter);
+  };
+
+  const handleNextLetter = () => {
+    const idx = letterIndex < filteredAlphabets.length - 1 ? letterIndex + 1 : filteredAlphabets.length - 1;
+    const item = filteredAlphabets[idx];
+    setSelectedLetter(item);
+    speakText(item.letter);
+  };
+
+  const handlePreviousNumber = () => {
+    const idx = numberIndex > 0 ? numberIndex - 1 : 0;
+    const item = gujaratiNumbers[idx];
+    setSelectedNumber(item);
+    speakText(item.word);
+  };
+
+  const handleNextNumber = () => {
+    const idx = numberIndex < gujaratiNumbers.length - 1 ? numberIndex + 1 : gujaratiNumbers.length - 1;
+    const item = gujaratiNumbers[idx];
+    setSelectedNumber(item);
+    speakText(item.word);
+  };
+
   const openSignModal = (item) => {
     setActiveVideoModal({
       title: `${item.name || item.word} - ISL Sign`,
@@ -233,6 +265,13 @@ export const GujaratiModule = () => {
               targetWord={selectedLetter.word}
               letterMeaning={selectedLetter.meaning}
               onSignClick={() => openSignModal(selectedLetter)}
+              traceGuide={selectedLetter.traceGuide || ''}
+              currentIndex={letterIndex >= 0 ? letterIndex : 0}
+              totalItems={filteredAlphabets.length}
+              onPrevious={handlePreviousLetter}
+              onNext={handleNextLetter}
+              hasPrevious={letterIndex > 0}
+              hasNext={letterIndex < filteredAlphabets.length - 1}
             />
           </div>
         </div>
@@ -333,6 +372,13 @@ export const GujaratiModule = () => {
               targetWord={`${selectedNumber.word} (${selectedNumber.englishNumber})`}
               letterMeaning={selectedNumber.signDescription}
               onSignClick={() => openSignModal(selectedNumber)}
+              traceGuide={selectedNumber.traceGuide || ''}
+              currentIndex={numberIndex >= 0 ? numberIndex : 0}
+              totalItems={gujaratiNumbers.length}
+              onPrevious={handlePreviousNumber}
+              onNext={handleNextNumber}
+              hasPrevious={numberIndex > 0}
+              hasNext={numberIndex < gujaratiNumbers.length - 1}
             />
           </div>
         </div>

@@ -10,7 +10,14 @@ import {
   PenTool,
   Eraser,
   Award,
-  Video
+  Video,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  Layers,
+  BookOpen,
+  Pencil
 } from 'lucide-react';
 
 const CELL = 8; // grid cell size in CSS px used for scoring
@@ -89,28 +96,51 @@ export const computeGuideFont = (ctx, rectWidth, rectHeight, scale, text) => {
   return { fontSize, font: `bold ${fontSize * scale}px ${fontFam}` };
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// WritingPad Component
+// ─────────────────────────────────────────────────────────────────────────────
 export const WritingPad = ({
   targetLetter = 'ક',
   targetWord = 'કમળ',
   letterMeaning = '',
   onSignClick = null,
-  subject = 'gujarati'
+  subject = 'gujarati',
+  // Phase 2 navigation props (optional — omit in ScienceModule to disable nav UI)
+  currentIndex = null,
+  totalItems = null,
+  onPrevious = null,
+  onNext = null,
+  hasPrevious = false,
+  hasNext = false,
+  traceGuide = ''
 }) => {
   const { speakText, recordExerciseAttempt, showToast, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
 
   const canvasRef = useRef(null);
   const guideCanvasRef = useRef(null);
+
+  // ── Drawing state ──────────────────────────────────────────────────────────
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeCount, setStrokeCount] = useState(0);
-  const [showGuide, setShowGuide] = useState(true);
   const [penColor, setPenColor] = useState('#1e293b');
   const [penWidth, setPenWidth] = useState(6);
   const [isEraser, setIsEraser] = useState(false);
   const [scoreResult, setScoreResult] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Render guide watermark directly onto the guide canvas for pixel-perfect alignment
+  // ── Phase 2 state ──────────────────────────────────────────────────────────
+  // 'guided'   → shows the watermark tracing reference
+  // 'freehand' → hides the reference (memory / independent writing practice)
+  const [practiceMode, setPracticeMode] = useState('guided');
+  const [showRuling, setShowRuling] = useState(true);
+  const [showStrokePanel, setShowStrokePanel] = useState(false);
+  // Placeholder demo state — no real stroke paths yet, so buttons are disabled
+  const [demoPlaying, setDemoPlaying] = useState(false);
+
+  const showGuide = practiceMode === 'guided';
+
+  // ── Guide watermark rendering ──────────────────────────────────────────────
   const drawGuide = (targetCanvas, letter, isEvaluation = false) => {
     if (!targetCanvas) return;
     const ctx = targetCanvas.getContext('2d');
@@ -133,6 +163,7 @@ export const WritingPad = ({
     ctx.restore();
   };
 
+  // ── Initialise / reset canvas when targetLetter changes ───────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -151,6 +182,10 @@ export const WritingPad = ({
     }
 
     clearCanvas(false);
+    setScoreResult(null);
+    setShowStrokePanel(false);
+    setDemoPlaying(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetLetter]);
 
   useEffect(() => {
@@ -161,8 +196,10 @@ export const WritingPad = ({
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetLetter]);
 
+  // ── Canvas helpers ─────────────────────────────────────────────────────────
   const clearCanvas = (resetScore = true) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -239,6 +276,7 @@ export const WritingPad = ({
     setHistory(prev => prev.slice(0, -1));
   };
 
+  // ── Evaluation ─────────────────────────────────────────────────────────────
   const evaluateWriting = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -261,13 +299,13 @@ export const WritingPad = ({
       if (ink[i]) inkCellCount++;
     }
 
-    // Require actual ink drawn (at least 6 cells of coverage) rather than an arbitrary strokeCount >= 3
+    // Require actual ink drawn (at least 6 cells of coverage)
     if (inkCellCount < 6) {
       showToast(isEn ? 'Please write or trace the character on the canvas first!' : 'કૃપા કરીને પેડ પર અક્ષર લખવાનો પ્રયત્ન કરો!', 'info');
       return;
     }
 
-    // Draw the reference letter exactly like the on-screen guide, off-screen, to compare against
+    // Draw the reference letter off-screen, pixel-identical to the on-screen guide
     const ref = document.createElement('canvas');
     ref.width = canvas.width;
     ref.height = canvas.height;
@@ -297,9 +335,83 @@ export const WritingPad = ({
     if (stars > 0) speakText(targetLetter);
   };
 
+  // ── Navigation handlers ────────────────────────────────────────────────────
+  const handlePrevious = () => {
+    if (hasPrevious && onPrevious) {
+      clearCanvas(true);
+      onPrevious();
+    }
+  };
+
+  const handleNext = () => {
+    if (hasNext && onNext) {
+      clearCanvas(true);
+      onNext();
+    }
+  };
+
+  // ── Stroke-order demo (placeholder) ───────────────────────────────────────
+  // No vector stroke-path data exists in the project data files.
+  // Set hasStrokeData = true and populate strokePaths[] when coordinate data
+  // is curated so the Play/Pause/Replay controls become functional.
+  const hasStrokeData = false;
+
+  const handleDemoToggle = () => {
+    if (!hasStrokeData) return;
+    setDemoPlaying(prev => !prev);
+  };
+
+  const handleDemoReplay = () => {
+    if (!hasStrokeData) return;
+    setDemoPlaying(false);
+    setTimeout(() => setDemoPlaying(true), 100);
+  };
+
+  // ── Notebook ruling ────────────────────────────────────────────────────────
+  // Pure CSS gradient on a div beneath the canvases — never sampled by
+  // canvas.getImageData() so it cannot affect drawing or scoring.
+  const rulingStyle = showRuling ? {
+    backgroundImage: [
+      'linear-gradient(90deg, transparent calc(15% - 1px), rgba(239,68,68,0.20) calc(15% - 1px), rgba(239,68,68,0.20) 15%, transparent 15%)',
+      'repeating-linear-gradient(180deg, transparent, transparent 31px, rgba(99,179,237,0.30) 31px, rgba(99,179,237,0.30) 32px)'
+    ].join(', ')
+  } : {};
+
+  // ── Derived flags ──────────────────────────────────────────────────────────
+  const hasNavigation = currentIndex !== null && totalItems !== null;
+  const displayIndex = currentIndex !== null ? currentIndex + 1 : null;
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-4 flex flex-col gap-3">
-      {/* Target Letter Header */}
+
+      {/* ── Prev / Next Navigation Bar ───────────────────────────────────── */}
+      {hasNavigation && (
+        <div className="flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
+          <button
+            onClick={handlePrevious}
+            disabled={!hasPrevious}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition disabled:opacity-30 disabled:cursor-not-allowed bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 active:scale-95 shadow-sm"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>{isEn ? 'Prev' : 'પહેલા'}</span>
+          </button>
+
+          <span className="text-xs font-bold text-slate-600 tabular-nums select-none">
+            {displayIndex} / {totalItems}
+          </span>
+
+          <button
+            onClick={handleNext}
+            disabled={!hasNext}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition disabled:opacity-30 disabled:cursor-not-allowed bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 active:scale-95 shadow-sm"
+          >
+            <span>{isEn ? 'Next' : 'આગળ'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* ── Target Letter Header ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-3xl font-extrabold shadow-md">
@@ -311,12 +423,14 @@ export const WritingPad = ({
               <button
                 onClick={() => speakText(`${targetLetter} એટલે ${targetWord}`)}
                 className="p-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
-                title={isEn ? "Listen to Pronunciation" : "અવાજ સાંભળો"}
+                title={isEn ? 'Listen to Pronunciation' : 'અવાજ સાંભળો'}
               >
                 <Volume2 className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-slate-500">{letterMeaning || (isEn ? 'Tracing & handwriting practice' : 'અક્ષર મહાવરો અને લેખન')}</p>
+            <p className="text-xs text-slate-500">
+              {letterMeaning || (isEn ? 'Tracing & handwriting practice' : 'અક્ષર મહાવરો અને લેખન')}
+            </p>
           </div>
         </div>
 
@@ -332,12 +446,109 @@ export const WritingPad = ({
         )}
       </div>
 
-      {/* Canvas Drawing Area with watermark guide */}
-      <div className="relative w-full h-[240px] sm:h-[280px] bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden flex items-center justify-center">
-        {/* Visual Guide Canvas - 100% pixel-aligned with evaluation reference */}
+      {/* ── Practice Mode Switcher ───────────────────────────────────────── */}
+      <div className="flex items-center bg-slate-100 p-1 rounded-xl gap-1">
+        <button
+          onClick={() => setPracticeMode('guided')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition ${
+            practiceMode === 'guided'
+              ? 'bg-white text-amber-700 shadow-sm border border-amber-200'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>{isEn ? 'Guided Practice' : 'માર્ગદર્શિત'}</span>
+        </button>
+        <button
+          onClick={() => setPracticeMode('freehand')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition ${
+            practiceMode === 'freehand'
+              ? 'bg-white text-purple-700 shadow-sm border border-purple-200'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          <span>{isEn ? 'Freehand Practice' : 'સ્વતંત્ર'}</span>
+        </button>
+      </div>
+
+      {/* Freehand mode hint banner */}
+      {practiceMode === 'freehand' && (
+        <p className="text-[11px] text-purple-700 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1.5 font-medium">
+          {isEn
+            ? '✏️ Freehand mode: the tracing guide is hidden. Write the character from memory!'
+            : '✏️ સ્વતંત્ર મહાવરો: ઝાંખો અક્ષર છુપાવ્યો છે. યાદ રાખીને લખો!'}
+        </p>
+      )}
+
+      {/* ── Stroke-Order Panel (collapsible) ────────────────────────────── */}
+      <div className="rounded-xl border border-slate-200 overflow-hidden">
+        <button
+          onClick={() => setShowStrokePanel(prev => !prev)}
+          className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 hover:bg-slate-100 transition text-xs font-bold text-slate-700"
+        >
+          <span className="flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-slate-500" />
+            {isEn ? 'Stroke Order Guide' : 'સ્ટ્રોક ક્રમ માર્ગદર્શક'}
+          </span>
+          <span className="text-slate-400 text-[10px] select-none">{showStrokePanel ? '▲' : '▼'}</span>
+        </button>
+
+        {showStrokePanel && (
+          <div className="bg-white p-3 space-y-3 border-t border-slate-100">
+            {/* Verbal tracing tip from data (always available) */}
+            {traceGuide ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                <p className="text-[11px] font-bold text-amber-900 mb-0.5">
+                  {isEn ? 'Writing Tip:' : 'લેખન સૂચના:'}
+                </p>
+                <p className="text-xs text-slate-800 leading-relaxed">{traceGuide}</p>
+              </div>
+            ) : null}
+
+            {/* Animated stroke-order placeholder */}
+            <div className="rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center space-y-3">
+              {/* Play / Pause / Replay controls — present for future extensibility */}
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={handleDemoReplay}
+                  disabled={!hasStrokeData}
+                  className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 transition"
+                  title={isEn ? 'Replay' : 'ફરીથી'}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleDemoToggle}
+                  disabled={!hasStrokeData}
+                  className="p-2 rounded-lg bg-amber-500 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-amber-400 transition"
+                  title={demoPlaying ? (isEn ? 'Pause' : 'રોકો') : (isEn ? 'Play' : 'ચલાવો')}
+                >
+                  {demoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium leading-snug max-w-xs mx-auto">
+                {isEn
+                  ? 'Animated stroke-order demonstration is coming soon. Stroke-path coordinates for Gujarati characters are currently being curated.'
+                  : 'ગુજરાતી અક્ષરો માટે સ્ટ્રોક-ઓર્ડર એનિમેશન ટૂંક સમયમાં ઉમેરાશે. હાલ ડેટા તૈયાર કરવામાં આવી રહ્યો છે.'}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Canvas Drawing Area ──────────────────────────────────────────── */}
+      <div className="relative w-full h-[240px] sm:h-[280px] bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden">
+        {/* Notebook ruling — purely decorative CSS gradient, never sampled by canvas */}
+        <div
+          className="absolute inset-0 rounded-2xl pointer-events-none z-0 transition-opacity duration-300"
+          style={{ opacity: showRuling ? 1 : 0, ...rulingStyle }}
+        />
+
+        {/* Visual Guide Canvas — pixel-aligned with evaluation reference */}
         <canvas
           ref={guideCanvasRef}
-          className={`absolute inset-0 w-full h-full pointer-events-none select-none transition-opacity duration-200 z-0 ${
+          className={`absolute inset-0 w-full h-full pointer-events-none select-none transition-opacity duration-200 z-10 ${
             showGuide ? 'opacity-100' : 'opacity-0'
           }`}
         />
@@ -352,29 +563,30 @@ export const WritingPad = ({
           onTouchStart={startDrawing}
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
-          className="w-full h-full cursor-crosshair relative z-10"
+          className="absolute inset-0 w-full h-full cursor-crosshair z-20"
         />
 
+        {/* Empty-canvas hint */}
         {strokeCount === 0 && (
-          <div className="absolute bottom-3 text-center pointer-events-none z-20">
-            <p className="text-xs font-medium text-slate-500 bg-white/90 px-3 py-1 rounded-full border border-slate-200 shadow-xs">
+          <div className="absolute bottom-3 left-0 right-0 text-center pointer-events-none z-30">
+            <p className="inline-block text-xs font-medium text-slate-500 bg-white/90 px-3 py-1 rounded-full border border-slate-200 shadow-xs">
               {targetLetter.length > 2
-                ? (isEn ? `Practice writing '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે ‘${targetLetter}’ લખો`)
-                : (isEn ? `Trace character '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે અક્ષર ‘${targetLetter}’ ઘૂંટો`)}
+                ? (isEn ? `Practice writing '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે '${targetLetter}' લખો`)
+                : (isEn ? `Trace character '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે અક્ષર '${targetLetter}' ઘૂંટો`)}
             </p>
           </div>
         )}
       </div>
 
-      {/* Toolbar Controls */}
+      {/* ── Toolbar Controls ──────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => setIsEraser(false)}
             className={`p-2 rounded-lg text-xs font-medium transition ${
               !isEraser ? 'bg-amber-500 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
-            title={isEn ? "Pen (Write)" : "પેન"}
+            title={isEn ? 'Pen (Write)' : 'પેન'}
           >
             <PenTool className="w-4 h-4" />
           </button>
@@ -384,7 +596,7 @@ export const WritingPad = ({
             className={`p-2 rounded-lg text-xs font-medium transition ${
               isEraser ? 'bg-rose-500 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
-            title={isEn ? "Eraser" : "રબર"}
+            title={isEn ? 'Eraser' : 'રબર'}
           >
             <Eraser className="w-4 h-4" />
           </button>
@@ -404,15 +616,17 @@ export const WritingPad = ({
             </div>
           )}
 
-          {/* Guide Watermark Toggle */}
+          {/* Notebook Ruling Toggle */}
           <button
-            onClick={() => setShowGuide(!showGuide)}
+            onClick={() => setShowRuling(prev => !prev)}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
-              showGuide ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-slate-100 border-slate-200 text-slate-600'
+              showRuling
+                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                : 'bg-slate-100 border-slate-200 text-slate-500'
             }`}
+            title={isEn ? 'Toggle notebook ruling' : 'નોટ-બુક લાઇન'}
           >
-            {showGuide ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            <span className="text-[11px]">{showGuide ? (isEn ? 'Guide On' : 'માર્ગદર્શક ચાલુ') : (isEn ? 'Guide Off' : 'માર્ગદર્શક બંધ')}</span>
+            <span className="text-[11px]">{isEn ? (showRuling ? 'Lines On' : 'Lines Off') : (showRuling ? 'રેખા ✓' : 'રેખા')}</span>
           </button>
         </div>
 
@@ -422,7 +636,7 @@ export const WritingPad = ({
             onClick={handleUndo}
             disabled={history.length === 0}
             className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 text-xs font-medium transition"
-            title={isEn ? "Undo" : "પાછળ જાઓ"}
+            title={isEn ? 'Undo' : 'પાછળ જાઓ'}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -444,7 +658,7 @@ export const WritingPad = ({
         </div>
       </div>
 
-      {/* Score and Feedback Banner */}
+      {/* ── Score and Feedback Banner ─────────────────────────────────────── */}
       {scoreResult && (
         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-2.5">
