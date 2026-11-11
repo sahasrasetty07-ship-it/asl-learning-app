@@ -1,14 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  RotateCcw, 
-  Check, 
-  Sparkles, 
-  Eye, 
-  EyeOff, 
-  Volume2, 
-  PenTool, 
-  Eraser, 
+import {
+  RotateCcw,
+  Check,
+  Sparkles,
+  Eye,
+  EyeOff,
+  Volume2,
+  PenTool,
+  Eraser,
   Award,
   Video
 } from 'lucide-react';
@@ -51,12 +51,56 @@ export const scoreGrids = (ink, target, cols, rows, tol = 2) => {
   return Math.round(100 * Math.sqrt((inkOnLetter / inkCount) * (targetCovered / targetCount)));
 };
 
-export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', letterMeaning = '', onSignClick = null }) => {
+// Computes appropriate font size based on text length and canvas dimensions
+export const getGuideFontSize = (rectWidth, rectHeight, text) => {
+  if (!text) return 120;
+  const len = text.length;
+  let baseSize;
+  if (len <= 1) {
+    baseSize = Math.min(rectHeight * 0.68, 175);
+  } else if (len === 2) {
+    baseSize = Math.min(rectHeight * 0.60, 135);
+  } else if (len <= 4) {
+    baseSize = Math.min(rectHeight * 0.45, 90);
+  } else if (len <= 7) {
+    baseSize = Math.min(rectHeight * 0.38, 65);
+  } else {
+    // Longer words like પ્રકાશસંશ્લેષણ or સૂર્યમંડળ
+    baseSize = Math.min(rectHeight * 0.28, 48);
+  }
+  return Math.max(22, Math.round(baseSize));
+};
+
+// Dynamically adjusts font size so text never clips off canvas boundaries
+export const computeGuideFont = (ctx, rectWidth, rectHeight, scale, text) => {
+  let fontSize = getGuideFontSize(rectWidth, rectHeight, text);
+  const maxWidth = (rectWidth - 40) * scale;
+  const fontFam = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Gujarati", "Gujarati Sangam MN", sans-serif';
+
+  ctx.font = `bold ${fontSize * scale}px ${fontFam}`;
+  let textWidth = ctx.measureText(text).width;
+
+  if (textWidth > maxWidth && textWidth > 0) {
+    fontSize = Math.floor(fontSize * (maxWidth / textWidth));
+    fontSize = Math.max(20, fontSize);
+    ctx.font = `bold ${fontSize * scale}px ${fontFam}`;
+  }
+
+  return { fontSize, font: `bold ${fontSize * scale}px ${fontFam}` };
+};
+
+export const WritingPad = ({
+  targetLetter = 'ક',
+  targetWord = 'કમળ',
+  letterMeaning = '',
+  onSignClick = null,
+  subject = 'gujarati'
+}) => {
   const { speakText, recordExerciseAttempt, showToast, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
 
   const canvasRef = useRef(null);
-  const guideRef = useRef(null);
+  const guideCanvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeCount, setStrokeCount] = useState(0);
   const [showGuide, setShowGuide] = useState(true);
@@ -66,24 +110,67 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
   const [scoreResult, setScoreResult] = useState(null);
   const [history, setHistory] = useState([]);
 
+  // Render guide watermark directly onto the guide canvas for pixel-perfect alignment
+  const drawGuide = (targetCanvas, letter, isEvaluation = false) => {
+    if (!targetCanvas) return;
+    const ctx = targetCanvas.getContext('2d');
+    const rect = targetCanvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const scale = 2; // Retina scale
+    targetCanvas.width = rect.width * scale;
+    targetCanvas.height = rect.height * scale;
+
+    ctx.save();
+    ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+    const { font } = computeGuideFont(ctx, rect.width, rect.height, scale, letter);
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isEvaluation ? '#000000' : 'rgba(71, 85, 105, 0.22)';
+    ctx.fillText(letter, targetCanvas.width / 2, targetCanvas.height / 2);
+    ctx.restore();
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    ctx.scale(2, 2);
+    if (rect.width === 0) return;
+
+    const scale = 2;
+    canvas.width = rect.width * scale;
+    canvas.height = rect.height * scale;
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+    if (guideCanvasRef.current) {
+      drawGuide(guideCanvasRef.current, targetLetter, false);
+    }
 
     clearCanvas(false);
+  }, [targetLetter]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (guideCanvasRef.current) {
+        drawGuide(guideCanvasRef.current, targetLetter, false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [targetLetter]);
 
   const clearCanvas = (resetScore = true) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
     setStrokeCount(0);
     setHistory([]);
     if (resetScore) setScoreResult(null);
@@ -153,28 +240,47 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
   };
 
   const evaluateWriting = () => {
-    if (strokeCount < 3) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (strokeCount === 0) {
       showToast(isEn ? 'Please try drawing the character on the canvas first!' : 'કૃપા કરીને પેડ પર અક્ષર લખવાનો પ્રયત્ન કરો!', 'info');
       return;
     }
 
-    const canvas = canvasRef.current;
     const scale = canvas.width / canvas.getBoundingClientRect().width;
     const cols = Math.ceil(canvas.width / (CELL * scale));
     const rows = Math.ceil(canvas.height / (CELL * scale));
 
-    // Draw the letter exactly like the on-screen guide, off-screen, to compare against
+    const inkImageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    const ink = toGrid(inkImageData, scale, cols, rows);
+
+    // Ink detection: count number of drawn ink grid cells
+    let inkCellCount = 0;
+    for (let i = 0; i < ink.length; i++) {
+      if (ink[i]) inkCellCount++;
+    }
+
+    // Require actual ink drawn (at least 6 cells of coverage) rather than an arbitrary strokeCount >= 3
+    if (inkCellCount < 6) {
+      showToast(isEn ? 'Please write or trace the character on the canvas first!' : 'કૃપા કરીને પેડ પર અક્ષર લખવાનો પ્રયત્ન કરો!', 'info');
+      return;
+    }
+
+    // Draw the reference letter exactly like the on-screen guide, off-screen, to compare against
     const ref = document.createElement('canvas');
     ref.width = canvas.width;
     ref.height = canvas.height;
     const rctx = ref.getContext('2d');
-    const guideStyle = getComputedStyle(guideRef.current);
-    rctx.font = `${guideStyle.fontWeight} ${parseFloat(guideStyle.fontSize) * scale}px ${guideStyle.fontFamily}`;
+    const rect = canvas.getBoundingClientRect();
+
+    const { font } = computeGuideFont(rctx, rect.width, rect.height, scale, targetLetter);
+    rctx.font = font;
     rctx.textAlign = 'center';
     rctx.textBaseline = 'middle';
+    rctx.fillStyle = '#000000';
     rctx.fillText(targetLetter, ref.width / 2, ref.height / 2);
 
-    const ink = toGrid(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height), scale, cols, rows);
     const target = toGrid(rctx.getImageData(0, 0, ref.width, ref.height), scale, cols, rows);
     const score = scoreGrids(ink, target, cols, rows);
     const stars = score >= 85 ? 3 : score >= 70 ? 2 : score >= 60 ? 1 : 0;
@@ -187,7 +293,7 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
 
     setScoreResult({ score, message, stars });
 
-    recordExerciseAttempt('gujarati', stars > 0, `Letter '${targetLetter}' Practice`, stars * 5);
+    recordExerciseAttempt(subject, stars > 0, `Letter '${targetLetter}' Practice`, stars * 5);
     if (stars > 0) speakText(targetLetter);
   };
 
@@ -202,7 +308,7 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-slate-800">{targetWord}</h3>
-              <button 
+              <button
                 onClick={() => speakText(`${targetLetter} એટલે ${targetWord}`)}
                 className="p-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
                 title={isEn ? "Listen to Pronunciation" : "અવાજ સાંભળો"}
@@ -228,13 +334,15 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
 
       {/* Canvas Drawing Area with watermark guide */}
       <div className="relative w-full h-[240px] sm:h-[280px] bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden flex items-center justify-center">
-        {/* Guide stays mounted (invisible when off) so scoring can read its font */}
-        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none select-none ${showGuide ? 'opacity-20' : 'opacity-0'}`}>
-            <span ref={guideRef} className="text-[160px] sm:text-[190px] font-black text-slate-900 leading-none">
-              {targetLetter}
-            </span>
-        </div>
+        {/* Visual Guide Canvas - 100% pixel-aligned with evaluation reference */}
+        <canvas
+          ref={guideCanvasRef}
+          className={`absolute inset-0 w-full h-full pointer-events-none select-none transition-opacity duration-200 z-0 ${
+            showGuide ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
 
+        {/* Interactive User Drawing Canvas */}
         <canvas
           ref={canvasRef}
           onMouseDown={startDrawing}
@@ -248,9 +356,11 @@ export const WritingPad = ({ targetLetter = 'ક', targetWord = 'કમળ', let
         />
 
         {strokeCount === 0 && (
-          <div className="absolute bottom-3 text-center pointer-events-none z-0">
+          <div className="absolute bottom-3 text-center pointer-events-none z-20">
             <p className="text-xs font-medium text-slate-500 bg-white/90 px-3 py-1 rounded-full border border-slate-200 shadow-xs">
-              {isEn ? `Trace character '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે અક્ષર ‘${targetLetter}’ ઘૂંટો`}
+              {targetLetter.length > 2
+                ? (isEn ? `Practice writing '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે ‘${targetLetter}’ લખો`)
+                : (isEn ? `Trace character '${targetLetter}' with touch or mouse` : `આંગળી અથવા માઉસ વડે અક્ષર ‘${targetLetter}’ ઘૂંટો`)}
             </p>
           </div>
         )}
