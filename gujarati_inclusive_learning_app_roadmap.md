@@ -7,7 +7,7 @@
 Build an accessible, Gujarati-first learning app that helps deaf and hard-of-hearing students practise school concepts beyond the classroom, while giving teachers and parents a shared view of learning progress. Add communication tools in stages so they are useful, safe, and accurate rather than promising unrestricted automatic translation too early.
 
 **Primary users:** Students, teachers, parents.  
-**Later user group:** Employers / HR teams for accessible interviews and workplace communication.
+**Later user group:** Employers / HR teams for accessible interviews and workplace communication (deferred to Phase 8 Expansion).
 
 ### What makes this project valuable
 
@@ -29,7 +29,7 @@ India already has official Indian Sign Language (ISL) dictionary resources and t
 | Gujarati text → ISL | Search and play expert-recorded signs for a limited, curated vocabulary and phrase set | Suggest or review new content | **MVP – limited phrasebook** |
 | Gujarati speech → text → ISL | Convert recognised Gujarati speech into text, then show matching sign clips | Useful for supported phrases | **Later** |
 | ISL video → Gujarati text | Camera-based recognition for a limited, trained vocabulary | Review uncertain results | **Later R&D** |
-| HR communication | Live captions, text chat, and text-to-speech for interviews | Interviewer communication tools | **Later** |
+| HR communication | Live captions, text chat, and text-to-speech for interviews | Interviewer communication tools | **Later (Phase 8 Expansion)** |
 
 **Do not promise in the first release:** translation of any arbitrary news article, unrestricted real-time Gujarati-to-ISL interpretation, or reliable recognition of every sign. These require large, consented datasets, contextual language handling, and validation with Deaf users and qualified ISL educators.
 
@@ -90,7 +90,7 @@ flowchart TD
     K -. confidence + supported vocabulary only .-> M[Gujarati text result for user confirmation]
 ```
 
-**Translation rule:** Display a confidence / “not supported” state when a reliable match is unavailable. Do not silently guess a sign or sentence meaning. Sign recognition must account for hand movement, facial expression, and body/head position—not only a still hand image.
+**Translation rule:** Display a clear “not supported” state when a reliable match is unavailable. Do not silently guess a sign or sentence meaning, and never fall back to unrelated signs. Actual sign recognition requires a trained, validated ML model; do not display simulated confidence scores or fabricate random voice responses.
 
 ---
 
@@ -116,7 +116,7 @@ flowchart TB
 | Layer | Suggested choice | Responsibility |
 |---|---|---|
 | Mobile app | React Native + Expo | Student and parent learning experience; Android-first pilot |
-| Web dashboard | React | Teacher, content-admin, and later HR screens |
+| Web dashboard | React | Teacher and content-admin screens (workplace/HR screens deferred to Phase 8) |
 | Backend | Node.js + Express | Login, roles, lessons, assignments, attempts, reports, APIs |
 | Database | PostgreSQL (managed Supabase is an option) | Structured learning and user data |
 | Media storage | Supabase Storage or S3-compatible storage | Sign videos, diagrams, lesson media |
@@ -162,7 +162,7 @@ flowchart LR
 
 The first usable release is complete when:
 
-- [ ] Student, teacher, and parent roles work with appropriate permissions.
+- [ ] Student, teacher, and parent roles work with appropriate permissions (educational roles only; HR role deferred to Phase 8).
 - [ ] Gujarati alphabet and numbers have reviewed learning content and sign videos.
 - [ ] Each Gujarati lesson includes an example word and a writing-pad exercise.
 - [ ] Maths includes tables, all four basic operations, and written practice problems.

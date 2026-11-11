@@ -81,7 +81,7 @@ export const apiService = {
     return res.json();
   },
 
-  // 4. Translation & Sign Recognition
+  // 4. Translation & Sign Recognition (Curated ISL Phrasebook lookup)
   async translateTextToSign(text) {
     if (USE_MOCK) {
       const words = text.split(/[\s,।.]+/).filter(Boolean);
@@ -89,8 +89,8 @@ export const apiService = {
         words.some(w => item.gujarati.includes(w) || w.includes(item.gujarati))
       );
       return Promise.resolve({
-        tokens: matches.length > 0 ? matches : [phrasebookData[0]],
-        confidence: 0.95
+        tokens: matches,
+        unmatchedWords: words.filter(w => !matches.some(m => m.gujarati.includes(w) || w.includes(m.gujarati)))
       });
     }
 

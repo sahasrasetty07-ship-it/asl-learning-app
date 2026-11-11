@@ -5,7 +5,7 @@ const AppContext = createContext();
 const STUDENT_KEY = 'gsl-student-v1';
 
 export const AppProvider = ({ children }) => {
-  // Roles: 'student' | 'teacher' | 'parent' | 'hr'
+  // Roles: 'student' | 'teacher' | 'parent'
   const [currentRole, setCurrentRole] = useState('student');
   
   // UI Language: 'en' (English default) | 'gu' (Gujarati)

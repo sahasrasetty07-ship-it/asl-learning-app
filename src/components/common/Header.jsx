@@ -10,7 +10,6 @@ import {
   User, 
   GraduationCap, 
   Users, 
-  Briefcase,
   Globe
 } from 'lucide-react';
 
@@ -50,13 +49,6 @@ export const Header = () => {
       icon: Users, 
       activeGradient: 'from-emerald-600 to-teal-600',
       activeGlow: 'shadow-emerald-500/20'
-    },
-    { 
-      id: 'hr', 
-      label: isEn ? 'HR Interview' : 'ઇન્ટરવ્યુ', 
-      icon: Briefcase, 
-      activeGradient: 'from-purple-600 to-pink-600',
-      activeGlow: 'shadow-purple-500/20'
     },
   ];
 

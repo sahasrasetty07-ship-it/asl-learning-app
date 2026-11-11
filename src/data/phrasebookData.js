@@ -25,7 +25,7 @@ export const phrasebookData = [
   {
     gujarati: 'તમારું નામ શું છે?',
     english: 'What is your name?',
-    tags: ['interview', 'daily', 'question'],
+    tags: ['daily', 'question'],
     signDescription: 'તમારા તરફ હાથ કરો ("તમારું"), બંને હાથની H આંગળીઓ ટેપ કરો ("નામ"), અને પ્રશ્નાર્થ હાવભાવ સાથે હાથ ફેલાવો ("શું").',
     category: 'પ્રશ્નો',
   },
@@ -58,66 +58,39 @@ export const phrasebookData = [
     category: 'શિક્ષણ',
   },
 
-  // HR & Interview specific phrases
+  // General School & Conversational Phrases
   {
     gujarati: 'તમારો પરિચય આપો',
     english: 'Introduce yourself',
-    tags: ['interview', 'hr'],
+    tags: ['daily', 'school', 'introduction'],
     signDescription: 'તમારા તરફ હથેળી દર્શાવી તમારી વિશે જણાવવા માટે બંને હાથ છાતીથી આગળ ખોલો.',
-    category: 'ઇન્ટરવ્યુ',
+    category: 'પરિચય',
   },
   {
     gujarati: 'તમારો અભ્યાસ શું છે?',
     english: 'What is your qualification / education?',
-    tags: ['interview', 'hr'],
+    tags: ['school', 'education', 'question'],
     signDescription: 'ડિગ્રી ટોપી પહેરવાનો સંકેત અને પ્રશ્નાર્થ હાવભાવ સાથે હાથ ફેલાવો.',
-    category: 'ઇન્ટરવ્યુ',
+    category: 'શિક્ષણ',
   },
   {
     gujarati: 'તમને કમ્પ્યુટર ચલાવતા આવડે છે?',
     english: 'Do you know how to operate a computer?',
-    tags: ['interview', 'hr', 'technical'],
+    tags: ['school', 'learning', 'question'],
     signDescription: 'બંને હાથે કીબોર્ડ પર ટાઈપ કરવાનો અભિનય કરો અને આવડે છે નો પ્રશ્નાર્થ પૂછો.',
-    category: 'ઇન્ટરવ્યુ',
-  },
-  {
-    gujarati: 'તમે ક્યારે જોડાઈ શકશો?',
-    english: 'When can you join?',
-    tags: ['interview', 'hr'],
-    signDescription: 'કેલેન્ડર તારીખનો સંકેત + બંને હાથ જોડી ટીમમાં જોડાવાનો સંકેત.',
-    category: 'ઇન્ટરવ્યુ',
+    category: 'શિક્ષણ',
   }
 ];
 
-export const sampleArticles = [
-  {
-    id: 'news-1',
-    title: 'ગુજરાત સરકાર દ્વારા દિવ્યાંગ વિદ્યાર્થીઓ માટે નવી યોજના',
-    category: 'શિક્ષણ સમાચાર',
-    date: '૯ નવેમ્બર, ૨૦૨૬',
-    summary: 'ગુજરાત શિક્ષણ વિભાગે ખાસ દિવ્યાંગ વિદ્યાર્થીઓ માટે ડિજિટલ સાઇન લેંગ્વેજ વર્ગખંડો અને ટેબ્લેટ સહાય યોજના જાહેર કરી છે.',
-    keywords: ['ગુજરાત', 'શિક્ષણ', 'વિદ્યાર્થીઓ', 'ડિજિટલ', 'સહાય'],
-    fullText: 'ગુજરાત શિક્ષણ વિભાગ દ્વારા રાજ્યભરની વિશેષ શાળાઓમાં અભ્યાસ કરતા શ્રવણમંદ વિદ્યાર્થીઓ માટે ગુજરાતી ભાષા આધારિત ઇન્ડિયન સાઇન લેંગ્વેજ (ISL) શિક્ષણ સામગ્રીનું વિતરણ શરૂ કરવામાં આવ્યું છે. આ યોજનાથી ઘેર બેઠા ગણિત અને વિજ્ઞાન શીખવું સરળ બનશે.'
-  },
-  {
-    id: 'news-2',
-    title: 'અમદાવાદમાં સાયન્સ સિટી ખાતે વિદ્યાર્થીઓનો પ્રવાસ',
-    category: 'વિજ્ઞાન અને જ્ઞાન',
-    date: '૭ નવેમ્બર, ૨૦૨૬',
-    summary: 'અમદાવાદ સાયન્સ સિટી ખાતે રોબોટિક્સ અને સ્પેસ ગેલેરીમાં વિદ્યાર્થીઓએ સૂર્યમંડળ અને રોકેટ વિજ્ઞાન વિશે પ્રત્યક્ષ જાણકારી મેળવી.',
-    keywords: ['સાયન્સ સિટી', 'સૂર્યમંડળ', 'રોબોટ', 'વિજ્ઞાન', 'અમદાવાદ'],
-    fullText: 'વિશેષ શાળાના બાળકો માટે સાયન્સ સિટીમાં ખાસ સાઇન લેંગ્વેજ ગાઇડ સાથે ટૂર યોજાઇ હતી. બાળકોએ સૂર્યમંડળના આઠ ગ્રહોનું મોડેલ જોયું અને પ્રકાશસંશ્લેષણના પ્રયોગો માણ્યા.'
-  }
-];
-
+// Prototype test gestures for manual testing (AI landmark model not connected in prototype)
 export const recognizedGesturesList = [
-  { gesture: 'નમસ્તે (Greeting)', confidence: 96, keypoints: '21 hand landmarks, both palms joined' },
-  { gesture: 'કમળ (Lotus / ક)', confidence: 94, keypoints: 'Fingers blooming outward' },
-  { gesture: 'ઘર (House / ઘ)', confidence: 91, keypoints: 'Fingertips forming triangle roof' },
-  { gesture: 'પાણી (Water)', confidence: 89, keypoints: 'W-shape tapping near chin' },
-  { gesture: 'આભાર (Thank You)', confidence: 95, keypoints: 'Hand moving from chin forward' },
-  { gesture: 'સંખ્યા ૧ (One)', confidence: 98, keypoints: 'Index finger vertical' },
-  { gesture: 'સંખ્યા ૨ (Two)', confidence: 97, keypoints: 'Index + Middle finger V shape' },
-  { gesture: 'સંખ્યા ૫ (Five)', confidence: 99, keypoints: 'All 5 fingers splayed open' }
+  { gesture: 'નમસ્તે (Greeting)', keypoints: '21 hand landmarks, both palms joined' },
+  { gesture: 'કમળ (Lotus / ક)', keypoints: 'Fingers blooming outward' },
+  { gesture: 'ઘર (House / ઘ)', keypoints: 'Fingertips forming triangle roof' },
+  { gesture: 'પાણી (Water)', keypoints: 'W-shape tapping near chin' },
+  { gesture: 'આભાર (Thank You)', keypoints: 'Hand moving from chin forward' },
+  { gesture: 'સંખ્યા ૧ (One)', keypoints: 'Index finger vertical' },
+  { gesture: 'સંખ્યા ૨ (Two)', keypoints: 'Index + Middle finger V shape' },
+  { gesture: 'સંખ્યા ૫ (Five)', keypoints: 'All 5 fingers splayed open' }
 ];
 

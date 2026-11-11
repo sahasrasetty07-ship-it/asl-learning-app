@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { phrasebookData, sampleArticles } from '../../data/phrasebookData';
+import { phrasebookData } from '../../data/phrasebookData';
 import { 
   ArrowRight, 
   RotateCcw, 
   Volume2, 
   Video, 
   Sparkles, 
-  Newspaper, 
   CheckCircle, 
   AlertCircle 
 } from 'lucide-react';
@@ -52,11 +51,6 @@ export const TextToSign = () => {
     setActiveSignIdx(0);
   };
 
-  const handleArticleClick = (article) => {
-    setInputText(article.summary);
-    handleTranslate(article.summary);
-  };
-
   return (
     <div className="space-y-4">
       {/* Gujarati Text Input Box */}
@@ -64,7 +58,7 @@ export const TextToSign = () => {
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-amber-500" />
-            {isEn ? 'Enter Gujarati Text or Article:' : 'ગુજરાતી લખાણ / સમાચાર દાખલ કરો:'}
+            {isEn ? 'Enter Gujarati Text:' : 'ગુજરાતી લખાણ દાખલ કરો:'}
           </label>
           <button
             onClick={() => speakText(inputText)}
@@ -78,7 +72,7 @@ export const TextToSign = () => {
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={isEn ? "Type Gujarati text here or select from sample articles below..." : "અહીં ગુજરાતીમાં લખો અથવા નીચે આપેલા નમૂના સમાચાર પસંદ કરો..."}
+          placeholder={isEn ? "Type Gujarati word or sentence here..." : "અહીં ગુજરાતી શબ્દ અથવા વાક્ય લખો..."}
           rows={3}
           className="w-full p-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-medium resize-none"
         />
@@ -210,38 +204,6 @@ export const TextToSign = () => {
           )}
         </div>
       )}
-
-      {/* Curated Gujarati News & Articles for Translation Testing */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
-        <div className="flex items-center gap-2 text-slate-800">
-          <Newspaper className="w-4 h-4 text-amber-600" />
-          <h4 className="text-xs font-bold uppercase tracking-wider">
-            {isEn ? 'Curated Sample Articles & News' : 'નમૂના સમાચાર / આર્ટિકલ અનુવાદ'}
-          </h4>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sampleArticles.map(art => (
-            <div
-              key={art.id}
-              className="bg-slate-50 hover:bg-amber-50/50 p-3.5 rounded-xl border border-slate-200 transition flex flex-col justify-between space-y-2 cursor-pointer"
-              onClick={() => handleArticleClick(art)}
-            >
-              <div>
-                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
-                  {art.category}
-                </span>
-                <h5 className="text-xs font-bold text-slate-900 mt-1 leading-snug">{art.title}</h5>
-                <p className="text-[11px] text-slate-600 mt-1 line-clamp-2">{art.summary}</p>
-              </div>
-              <button className="text-[11px] font-bold text-amber-700 flex items-center gap-1 self-start hover:underline">
-                <span>{isEn ? 'Translate to ISL' : 'સાઇન લેંગ્વેજમાં જુઓ'}</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

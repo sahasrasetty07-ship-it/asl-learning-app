@@ -207,9 +207,9 @@ export const FRONTEND_COMPONENTS_MAP = {
       id: "text_to_sign",
       componentName: "TextToSign",
       filePath: "src/components/translation/TextToSign.jsx",
-      role: ["student", "teacher", "parent", "hr"],
+      role: ["student", "teacher", "parent"],
       category: "Translation Microservice",
-      description: "Converts input Gujarati sentences or news articles into sequential ISL sign video clips and animations with fallback fingerspelling for unrecognized words.",
+      description: "Converts input Gujarati words and sentences into verified ISL sign video clips and animations with fallback fingerspelling for unrecognized words.",
       propsAndState: {
         state: [
           "inputText: string",
@@ -230,8 +230,7 @@ export const FRONTEND_COMPONENTS_MAP = {
             tokens: [
               { word: "નમસ્તે", isExactMatch: true, videoUrl: "https://.../namaste.mp4", signDescription: "બંને હાથ જોડી..." },
               { word: "આરવ", isExactMatch: false, fingerspell: ["આ", "ર", "વ"] }
-            ],
-            confidence: 95
+            ]
           }
         }
       ],
@@ -245,9 +244,9 @@ export const FRONTEND_COMPONENTS_MAP = {
       id: "sign_recognition",
       componentName: "SignRecognition",
       filePath: "src/components/translation/SignRecognition.jsx",
-      role: ["student", "hr", "teacher"],
-      category: "Computer Vision & ML",
-      description: "Live camera stream and MediaPipe 21 hand landmarks HUD overlay with real-time ISL gesture prediction, confidence scoring, and Gujarati text transcription.",
+      role: ["student", "teacher"],
+      category: "Computer Vision & ML (Prototype)",
+      description: "Camera preview and hand guide overlay for signing practice, with prototype reference signs to assemble Gujarati sentences (future integration point for ML sign recognition).",
       propsAndState: {
         state: [
           "isCameraActive: boolean",
@@ -260,17 +259,15 @@ export const FRONTEND_COMPONENTS_MAP = {
       backendEndpoints: [
         {
           method: "POST",
-          url: "/api/v1/ml/sign-recognition/predict",
-          purpose: "Send 21 hand landmarks / video frames to Python ML service for real-time ISL sign classification",
+          url: "/api/v1/ml/sign-recognition/predict (Planned future ML endpoint)",
+          purpose: "Future endpoint: Send hand landmarks / video frames to Python ML service for real-time ISL sign classification",
           requestBody: {
-            landmarks: [[0.5, 0.4, 0.1], [0.52, 0.38, 0.09]], // 21 (x, y, z) keypoints
+            landmarks: [[0.5, 0.4, 0.1], [0.52, 0.38, 0.09]],
             frameTimestamp: 1731174000
           },
           responseSchema: {
             recognizedSign: "નમસ્તે",
-            confidence: 0.96,
-            isSupported: true,
-            alternativeMatches: [{ sign: "આભાર", confidence: 0.12 }]
+            isSupported: true
           }
         }
       ],
@@ -285,7 +282,7 @@ export const FRONTEND_COMPONENTS_MAP = {
       filePath: "src/components/translation/SpeechToSign.jsx",
       role: ["student", "parent", "teacher"],
       category: "Speech & Translation",
-      description: "Listens to Gujarati speech via Web Speech API (gu-IN) or backend Whisper STT, transcribes to text, and plays matching ISL sign clips.",
+      description: "Listens to Gujarati speech via browser Web Speech API (gu-IN) when supported, transcribes to text, and displays matching curated ISL sign clips without fallbacks to unrelated signs.",
       propsAndState: {
         state: [
           "isListening: boolean",
@@ -297,56 +294,17 @@ export const FRONTEND_COMPONENTS_MAP = {
       backendEndpoints: [
         {
           method: "POST",
-          url: "/api/v1/ml/speech-to-text",
-          purpose: "Upload audio blob to Python Whisper STT service with Gujarati language model (gu-IN)",
+          url: "/api/v1/ml/speech-to-text (Planned future Whisper STT endpoint)",
+          purpose: "Future endpoint: Upload audio blob to Python Whisper STT service with Gujarati language model (gu-IN)",
           requestHeaders: { "Content-Type": "multipart/form-data" },
           responseSchema: {
             transcript: "નમસ્તે, તમારું નામ શું છે?",
-            confidence: 0.94,
             language: "gu"
           }
         }
       ],
       databaseTables: [
         "speech_logs (id, user_id, audio_duration_sec, transcript, created_at)"
-      ]
-    },
-
-    {
-      id: "interview_hub",
-      componentName: "InterviewHub",
-      filePath: "src/components/hr/InterviewHub.jsx",
-      role: ["hr"],
-      category: "Corporate Inclusive Recruitment",
-      description: "Split-screen interview console with live STT captions for hearing interviewers, quick questions with ISL sign animations, and candidate TTS playback in Gujarati.",
-      propsAndState: {
-        state: [
-          "isHrSpeaking: boolean",
-          "hrSpokenText: string",
-          "candidateResponse: string",
-          "transcript: Array<{ id, sender, name, text, time, hasSign, isTtsAvailable }>"
-        ]
-      },
-      backendEndpoints: [
-        {
-          method: "POST",
-          url: "/api/v1/interview/sessions/create",
-          purpose: "Create real-time WebSocket interview room between HR and deaf candidate"
-        },
-        {
-          method: "POST",
-          url: "/api/v1/interview/messages",
-          purpose: "Send message with auto-transcription and broadcast over socket",
-          requestBody: {
-            sessionId: "sess-902",
-            sender: "hr",
-            text: "તમારો અભ્યાસ શું છે?"
-          }
-        }
-      ],
-      databaseTables: [
-        "interview_sessions (id, hr_user_id, candidate_user_id, status, started_at)",
-        "interview_messages (id, session_id, sender_role, message_text, sign_video_url)"
       ]
     },
 

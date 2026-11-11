@@ -1,16 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { recognizedGesturesList } from '../../data/phrasebookData';
-import { 
-  Camera, 
-  CameraOff, 
-  Sparkles, 
-  Volume2, 
-  CheckCircle2, 
-  RefreshCw, 
-  Layers, 
-  ShieldCheck, 
-  Copy 
+import {
+  Camera,
+  CameraOff,
+  Sparkles,
+  Volume2,
+  CheckCircle2,
+  RefreshCw,
+  Layers,
+  ShieldCheck,
+  Copy
 } from 'lucide-react';
 
 export const SignRecognition = () => {
@@ -19,7 +19,7 @@ export const SignRecognition = () => {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  
+
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [activeGestureIdx, setActiveGestureIdx] = useState(0);
@@ -39,8 +39,8 @@ export const SignRecognition = () => {
     } else {
       setCameraError(null);
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user', width: 640, height: 480 } 
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 640, height: 480 }
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -48,8 +48,8 @@ export const SignRecognition = () => {
         setIsCameraActive(true);
       } catch (err) {
         console.warn('Camera permission denied or unavailable:', err);
-        setCameraError(isEn 
-          ? 'Camera not accessible or permission denied.' 
+        setCameraError(isEn
+          ? 'Camera not accessible or permission denied.'
           : 'કેમેરા ઉપલબ્ધ નથી અથવા મંજૂરી નકારાઈ.');
       }
     }
@@ -59,7 +59,7 @@ export const SignRecognition = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
+
     let animationFrameId;
     let angle = 0;
 
@@ -126,7 +126,7 @@ export const SignRecognition = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-              {isEn ? 'Sign Recognition – Prototype' : 'સાઇન ઓળખ – પ્રોટોટાઇપ'}
+              {isEn ? 'Camera Sign Practice – Prototype' : 'કેમેરા સાઇન પ્રેક્ટિસ – પ્રોટોટાઇપ'}
             </span>
           </div>
 
@@ -134,20 +134,20 @@ export const SignRecognition = () => {
             <button
               onClick={() => setShowSkeleton(!showSkeleton)}
               className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition flex items-center gap-1 ${
-                showSkeleton 
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' 
+                showSkeleton
+                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>{showSkeleton ? (isEn ? 'Skeleton On' : 'સ્કેલેટન ચાલુ') : (isEn ? 'Skeleton Off' : 'સ્કેલેટન બંધ')}</span>
+              <span>{showSkeleton ? (isEn ? 'Hand Guide On' : 'હેન્ડ ગાઇડ ચાલુ') : (isEn ? 'Hand Guide Off' : 'હેન્ડ ગાઇડ બંધ')}</span>
             </button>
 
             <button
               onClick={toggleCamera}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                isCameraActive 
-                  ? 'bg-rose-600 hover:bg-rose-500 text-white' 
+                isCameraActive
+                  ? 'bg-rose-600 hover:bg-rose-500 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white'
               }`}
             >
@@ -159,8 +159,8 @@ export const SignRecognition = () => {
 
         <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs">
           {isEn
-            ? 'Recognition model not connected yet. The hand overlay is a sample drawing; pick a test sign below to try the sentence builder.'
-            : 'ઓળખ મોડેલ હજુ જોડાયેલ નથી. હાથનું ચિત્ર નમૂનો છે; વાક્ય બનાવવા નીચેથી ટેસ્ટ સાઇન પસંદ કરો.'}
+            ? 'AI sign recognition model is not yet connected. The camera functions as a visual mirror for signing practice. Use the reference signs below to practice and assemble Gujarati sentences.'
+            : 'AI સાઇન ઓળખ મોડેલ હજુ જોડાયેલ નથી. કેમેરા સાઇનિંગ પ્રેક્ટિસ માટે મિરર તરીકે કાર્ય કરે છે. વાક્ય બનાવવા નીચે આપેલા સંદર્ભ સંકેતોનો ઉપયોગ કરો.'}
         </div>
 
         {/* Viewport for Video + Canvas Overlay */}
@@ -182,9 +182,9 @@ export const SignRecognition = () => {
               </div>
               <p className="text-sm font-bold text-slate-300">{isEn ? 'Camera is currently off' : 'કેમેરા બંધ છે'}</p>
               <p className="text-xs text-slate-500 max-w-xs">
-                {isEn 
-                  ? 'Click "Start Camera" above or choose a test gesture from the preset row below.' 
-                  : 'કેમેરા શરૂ કરો અથવા નીચે આપેલ પ્રીસેટ સાઇન સંકેત પસંદ કરી ટેસ્ટ કરો.'}
+                {isEn
+                  ? 'Click "Start Camera" above for mirror practice or choose a reference gesture below.'
+                  : 'પ્રેક્ટિસ માટે "કેમેરા શરૂ" કરો અથવા નીચેથી સંદર્ભ સંકેત પસંદ કરો.'}
               </p>
             </div>
           )}
@@ -197,10 +197,10 @@ export const SignRecognition = () => {
             className="absolute inset-0 w-full h-full pointer-events-none z-20"
           />
 
-          {/* HUD Bounding Box and Confidence Overlay */}
+          {/* HUD Reference Sign Display */}
           <div className="absolute top-3 left-3 bg-black/75 backdrop-blur border border-white/10 rounded-lg p-2 text-xs z-30">
             <div className="flex items-center gap-2">
-              <span className="text-amber-400 font-bold">{isEn ? 'Test sign:' : 'ટેસ્ટ સાઇન:'}</span>
+              <span className="text-amber-400 font-bold">{isEn ? 'Selected sign:' : 'પસંદ કરેલ સાઇન:'}</span>
               <span className="font-extrabold text-white">{currentGesture.gesture}</span>
             </div>
           </div>
@@ -219,7 +219,7 @@ export const SignRecognition = () => {
         {/* Gesture switcher to test different signs */}
         <div>
           <span className="text-xs font-bold text-slate-400 block mb-1.5">
-            {isEn ? 'Test signs (manual input until the model is ready):' : 'ટેસ્ટ સાઇન (મોડેલ તૈયાર થાય ત્યાં સુધી):'}
+            {isEn ? 'Reference signs for practice (click to select and add to sentence):' : 'પ્રેક્ટિસ માટેના સંકેતો (પસંદ કરી વાક્યમાં ઉમેરો):'}
           </span>
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {recognizedGesturesList.map((g, idx) => {
@@ -257,7 +257,7 @@ export const SignRecognition = () => {
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            {isEn ? 'Transcribed Gujarati Text:' : 'ઓળખાયેલ ગુજરાતી લખાણ:'}
+            {isEn ? 'Constructed Gujarati Sentence:' : 'બનાવેલ ગુજરાતી વાક્ય:'}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -278,7 +278,7 @@ export const SignRecognition = () => {
 
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 min-h-[70px] flex items-center justify-between">
           <p className="text-base font-bold text-slate-900 leading-relaxed">
-            {recognizedSentence || (isEn ? 'Perform signs in front of camera or select a test sign above...' : 'કેમેરા સામે સાઇન કરો અથવા ઉપરથી પ્રીસેટ ઉમેરો...')}
+            {recognizedSentence || (isEn ? 'Turn on camera for self-practice or select a reference sign above to build a sentence...' : 'સ્વ-પ્રેક્ટિસ માટે કેમેરા શરૂ કરો અથવા વાક્ય બનાવવા ઉપરથી સંકેત પસંદ કરો...')}
           </p>
         </div>
       </div>

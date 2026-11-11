@@ -1,7 +1,7 @@
 # Frontend Components & Backend Integration Guide
 ## સાકેત (Saket) - Gujarati ISL Inclusive Learning & Communication Platform
 
-> **Overview:** This document provides the complete integration blueprint for connecting the React frontend components to the Node.js/Express REST API, PostgreSQL database, and Python ML services (MediaPipe & Whisper).
+> **Overview:** This document provides the complete integration blueprint for connecting the React frontend components to the planned Node.js/Express REST API, PostgreSQL database, and future Python ML services (MediaPipe & Whisper).
 
 ---
 
@@ -20,7 +20,8 @@
 | Node.js/Express  |             |  Web Speech API  |             |  Python ML Service |
 |    REST API      |             | (gu-IN STT/TTS)  |             | (MediaPipe Hands & |
 | (Auth, Content,  |             | (Browser Native) |             |  Whisper Gujarati) |
-|   Analytics)     |             +------------------+             +--------------------+
+|   Analytics)     |             +------------------+             |   [Future / R&D]   |
+| [Planned Backend]|                                              +--------------------+
 +--------+---------+
          |
 +--------v---------+
@@ -34,7 +35,7 @@
 ## 2. Frontend Component Catalog & Backend Contract
 
 ### 2.1 Interactive Writing Pad
-- **Component File:** [`src/components/student/WritingPad.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/WritingPad.jsx)
+- **Component File:** [`src/components/student/WritingPad.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/WritingPad.jsx)
 - **Primary Role:** Student
 - **Description:** Touch and mouse-enabled HTML5 Canvas for students to trace and write Gujarati alphabets and numbers with stroke detection, clear, undo, and evaluation.
 - **Frontend State:**
@@ -70,7 +71,7 @@
 ---
 
 ### 2.2 Gujarati Learning Module
-- **Component File:** [`src/components/student/GujaratiModule.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/GujaratiModule.jsx)
+- **Component File:** [`src/components/student/GujaratiModule.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/GujaratiModule.jsx)
 - **Primary Role:** Student
 - **Description:** Vowels (સ્વરો) & Consonants (વ્યંજનો) catalogue, numbers (૧ થી ૧૦), vocabulary words, ISL sign video modal, and conversational sentence breakdown.
 - **Frontend State:**
@@ -90,7 +91,7 @@
 ---
 
 ### 2.3 Mathematics Module
-- **Component File:** [`src/components/student/MathModule.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/MathModule.jsx)
+- **Component File:** [`src/components/student/MathModule.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/MathModule.jsx)
 - **Primary Role:** Student
 - **Description:** Gujarati tables (ઘડિયા ૨ અને ૫), four basic operations (`+`, `-`, `×`, `÷`) with visual object counters and ISL signs, plus assessment problems with Gujarati numerals.
 - **Frontend State:**
@@ -123,7 +124,7 @@
 ---
 
 ### 2.4 Science Module
-- **Component File:** [`src/components/student/ScienceModule.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/ScienceModule.jsx)
+- **Component File:** [`src/components/student/ScienceModule.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/ScienceModule.jsx)
 - **Primary Role:** Student
 - **Description:** Science concept tutorials (Solar System / સૂર્યમંડળ, Photosynthesis / પ્રકાશસંશ્લેષણ, Water Cycle / જળચક્ર, States of Matter / દ્રવ્યની અવસ્થાઓ) with ISL tutorials, scientific vocabulary, writing pad integration, and comprehension quizzes.
 - **Frontend State:**
@@ -137,9 +138,9 @@
 ---
 
 ### 2.5 Translation Module - Text to Sign
-- **Component File:** [`src/components/translation/TextToSign.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/translation/TextToSign.jsx)
-- **Roles:** Student, Teacher, Parent, HR
-- **Description:** Tokenizes input Gujarati text or news articles into verified ISL sign clips and sequences, with fallback fingerspelling for unrecognized words.
+- **Component File:** [`src/components/translation/TextToSign.jsx`](file:///Users/sahasra/asl-learning-app/src/components/translation/TextToSign.jsx)
+- **Roles:** Student, Teacher, Parent
+- **Description:** Converts input Gujarati words and sentences into verified ISL sign video clips and sequences, with fallback fingerspelling for unrecognized words.
 - **Backend REST API:**
   - **Endpoint:** `POST /api/v1/translation/text-to-isl`
   - **Request Body:** `{ "text": "નમસ્તે, મારું નામ આરવ છે." }`
@@ -149,26 +150,24 @@
       "tokens": [
         { "word": "નમસ્તે", "videoUrl": "https://.../namaste.mp4", "signDescription": "બંને હાથ જોડી..." },
         { "word": "આરવ", "isExactMatch": false, "fingerspell": ["આ", "ર", "વ"] }
-      ],
-      "confidence": 0.95
+      ]
     }
     ```
 - **Database Tables:** `phrasebook`, `fingerspell_alphabet_signs`
 
 ---
 
-### 2.6 Translation Module - Camera Sign Recognition
-- **Component File:** [`src/components/translation/SignRecognition.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/translation/SignRecognition.jsx)
-- **Roles:** Student, HR, Teacher
-- **Description:** Real-time webcam feed with 21 MediaPipe hand landmarks skeleton HUD overlay, confidence meter, and Gujarati transcription.
-- **ML Microservice Contract:**
+### 2.6 Translation Module - Camera Sign Practice (Prototype)
+- **Component File:** [`src/components/translation/SignRecognition.jsx`](file:///Users/sahasra/asl-learning-app/src/components/translation/SignRecognition.jsx)
+- **Roles:** Student, Teacher
+- **Description:** Camera preview mirror and hand guide overlay for signing practice, with selectable prototype reference signs to assemble Gujarati sentences. *(Note: Active AI/MediaPipe sign recognition model is not yet connected in the client prototype; the camera provides a mirror feed for self-practice).*
+- **Future ML Microservice Contract (Planned):**
   - **WebSocket / REST Endpoint:** `POST /api/v1/ml/sign-recognition/predict`
   - **Payload:** 21 landmark coordinate triples `[[x, y, z], ...]`.
   - **Response:**
     ```json
     {
       "recognizedSign": "નમસ્તે",
-      "confidence": 0.96,
       "isSupported": true
     }
     ```
@@ -176,34 +175,23 @@
 ---
 
 ### 2.7 Translation Module - Speech to Sign
-- **Component File:** [`src/components/translation/SpeechToSign.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/translation/SpeechToSign.jsx)
+- **Component File:** [`src/components/translation/SpeechToSign.jsx`](file:///Users/sahasra/asl-learning-app/src/components/translation/SpeechToSign.jsx)
 - **Roles:** Student, Parent, Teacher
-- **Description:** Listens to Gujarati speech via Web Speech API (`gu-IN`) or backend Whisper STT, transcribes to text, and streams matching ISL sign video clips.
-- **Backend Endpoint:** `POST /api/v1/ml/speech-to-text` (multipart/form-data audio blob).
+- **Description:** Listens to Gujarati speech via browser Web Speech API (`gu-IN`) when supported, transcribes to text, and displays matching ISL sign video clips from the curated phrasebook without fallback to unrelated signs.
+- **Planned Backend Endpoint:** `POST /api/v1/ml/speech-to-text` (multipart/form-data audio blob for Whisper Gujarati when browser Web Speech API is unavailable).
 
 ---
 
-### 2.8 Inclusive Interview Hub
-- **Component File:** [`src/components/hr/InterviewHub.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/hr/InterviewHub.jsx)
-- **Primary Role:** HR / Company Recruiter
-- **Description:** Split-screen inclusive interview console: live STT captions for hearing interviewers, quick interview questions with ISL sign animations, and candidate TTS playback in Gujarati.
-- **Backend Endpoints:**
-  - `POST /api/v1/interview/sessions/create`
-  - `POST /api/v1/interview/messages`
-  - `GET /api/v1/interview/sessions/:id/transcript`
-
----
-
-### 2.9 Student Analytics & Report Card
-- **Component File:** [`src/components/student/ReportCard.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/ReportCard.jsx)
+### 2.8 Student Analytics & Report Card
+- **Component File:** [`src/components/student/ReportCard.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/ReportCard.jsx)
 - **Roles:** Student, Parent, Teacher
 - **Description:** Comprehensive student report card tracking progress and accuracy in Gujarati, Math, and Science, weak areas, and teacher recommendations.
 - **Backend Endpoint:** `GET /api/v1/analytics/students/:studentId/report-card`
 
 ---
 
-### 2.10 Teacher Dashboard
-- **Component File:** [`src/components/teacher/TeacherDashboard.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/teacher/TeacherDashboard.jsx)
+### 2.9 Teacher Dashboard
+- **Component File:** [`src/components/teacher/TeacherDashboard.jsx`](file:///Users/sahasra/asl-learning-app/src/components/teacher/TeacherDashboard.jsx)
 - **Primary Role:** Teacher
 - **Description:** Class overview, student performance table, topic strengths and weaknesses, and assignment creation modal.
 - **Backend Endpoints:**
@@ -212,8 +200,8 @@
 
 ---
 
-### 2.11 Parent Portal
-- **Component File:** [`src/components/parent/ParentDashboard.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/parent/ParentDashboard.jsx)
+### 2.10 Parent Portal
+- **Component File:** [`src/components/parent/ParentDashboard.jsx`](file:///Users/sahasra/asl-learning-app/src/components/parent/ParentDashboard.jsx)
 - **Primary Role:** Parent
 - **Description:** Child's daily progress and streak summary, plus a curated sign cheat-sheet for parents to communicate without knowing sign language.
 - **Backend Endpoint:** `GET /api/v1/parent/children/:childId/summary`
@@ -230,7 +218,7 @@
    ```
 
 2. **Replace Mock State in Context:**
-   In [`src/context/AppContext.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/context/AppContext.jsx), replace the initial state with `fetch()` calls on mount:
+   In [`src/context/AppContext.jsx`](file:///Users/sahasra/asl-learning-app/src/context/AppContext.jsx), replace the initial state with `fetch()` calls on mount:
    ```javascript
    useEffect(() => {
      fetch(`${import.meta.env.VITE_API_BASE_URL}/analytics/students/stu-101/report-card`, {
@@ -242,8 +230,8 @@
    ```
 
 3. **Writing Pad Cloud Storage:**
-   In [`src/components/student/WritingPad.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/student/WritingPad.jsx), inside `evaluateWriting()`, send the canvas base64 image data to `POST /api/v1/exercises/writing/evaluate`.
+   In [`src/components/student/WritingPad.jsx`](file:///Users/sahasra/asl-learning-app/src/components/student/WritingPad.jsx), inside `evaluateWriting()`, send the canvas base64 image data to `POST /api/v1/exercises/writing/evaluate`.
 
 4. **Speech Recognition Fallback:**
-   In [`src/components/translation/SpeechToSign.jsx`](file:///Users/parth/Desktop/asl-learning-app/src/components/translation/SpeechToSign.jsx), if `window.SpeechRecognition` is unsupported in a client browser, record audio using `MediaRecorder` and POST to `/api/v1/ml/speech-to-text`.
+   In [`src/components/translation/SpeechToSign.jsx`](file:///Users/sahasra/asl-learning-app/src/components/translation/SpeechToSign.jsx), if `window.SpeechRecognition` is unsupported in a client browser, record audio using `MediaRecorder` and POST to `/api/v1/ml/speech-to-text`.
 

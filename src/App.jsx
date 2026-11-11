@@ -11,7 +11,6 @@ import { ReportCard } from './components/student/ReportCard';
 import { TranslatorHub } from './components/translation/TranslatorHub';
 import { TeacherDashboard } from './components/teacher/TeacherDashboard';
 import { ParentDashboard } from './components/parent/ParentDashboard';
-import { InterviewHub } from './components/hr/InterviewHub';
 import { Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const MainContent = () => {
@@ -50,14 +49,6 @@ const MainContent = () => {
       return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           <ParentDashboard />
-        </div>
-      );
-    }
-
-    if (currentRole === 'hr') {
-      return (
-        <div className="max-w-5xl mx-auto p-4 sm:p-6">
-          <InterviewHub />
         </div>
       );
     }
