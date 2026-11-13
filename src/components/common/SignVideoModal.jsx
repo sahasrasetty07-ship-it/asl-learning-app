@@ -32,17 +32,15 @@ export const SignVideoModal = () => {
     category 
   } = activeVideoModal;
 
-  // Resolve approved YouTube embed URL with optional start & end timestamps
+  // Resolve YouTube embed URL with optional start & end timestamps.
+  // A valid youtubeId plays regardless of verification status —
+  // the in-modal badge already conveys whether the sign has been reviewed.
   const youtubeEmbedUrl = (() => {
-    // Only approved entries with valid video IDs may play
-    if (status && status !== 'approved') return null;
-
-    if (youtubeId && status === 'approved') {
+    if (youtubeId && typeof youtubeId === 'string') {
       return buildYouTubeEmbedUrl(youtubeId, startTime, endTime);
     }
 
     if (videoUrl && (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be'))) {
-      if (status !== 'approved') return null;
       if (videoUrl.includes('/embed/')) {
         const url = new URL(videoUrl);
         if (typeof startTime === 'number' && !isNaN(startTime) && startTime >= 0) {
