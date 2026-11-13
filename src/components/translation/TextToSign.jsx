@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { phrasebookData } from '../../data/phrasebookData';
-import { 
-  ArrowRight, 
-  RotateCcw, 
-  Volume2, 
-  Video, 
-  Sparkles, 
-  CheckCircle, 
-  AlertCircle 
+import {
+  ArrowRight,
+  RotateCcw,
+  Volume2,
+  Video,
+  Sparkles,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 
 const stripPunct = (s) => s.replace(/[,।.?!]/g, ' ');
@@ -116,75 +116,74 @@ export const TextToSign = () => {
             </p>
           )}
           {matchedPhrases.length > 0 && (<>
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
-                {isEn ? 'ISL Sign Output' : 'ISL સંકેત પરિણામ'}
-              </span>
-              <h3 className="text-base font-bold text-white mt-0.5">
-                "{matchedPhrases[activeSignIdx]?.gujarati || 'સાઇન'}"
-              </h3>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <span>{isEn ? 'Sequence:' : 'ક્રમ:'} {activeSignIdx + 1} / {matchedPhrases.length}</span>
-            </div>
-          </div>
-
-          {/* Virtual Signer Box */}
-          <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3 min-h-[200px]">
-            <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center text-3xl animate-pulse">
-              🤟
-            </div>
-            <div>
-              <p className="text-sm font-bold text-amber-300">
-                {matchedPhrases[activeSignIdx]?.signDescription}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                {matchedPhrases[activeSignIdx]?.verifiedBy
-                  ? `${isEn ? 'Reviewed by:' : 'ચકાસણી:'} ${matchedPhrases[activeSignIdx].verifiedBy}`
-                  : (isEn ? 'Draft sign description – not yet reviewed by an ISL educator' : 'ડ્રાફ્ટ વર્ણન – ISL શિક્ષક દ્વારા હજુ ચકાસાયેલ નથી')}
-              </p>
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                  {isEn ? 'ISL Sign Output' : 'ISL સંકેત પરિણામ'}
+                </span>
+                <h3 className="text-base font-bold text-white mt-0.5">
+                  {matchedPhrases[activeSignIdx]?.gujarati || 'સાઇન'}
+                </h3>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <span>{isEn ? 'Sequence:' : 'ક્રમ:'} {activeSignIdx + 1} / {matchedPhrases.length}</span>
+              </div>
             </div>
 
-            <button
-              onClick={() => {
-                const cur = matchedPhrases[activeSignIdx];
-                setActiveVideoModal({
-                  title: cur.gujarati,
-                  gujarati: cur.gujarati,
-                  english: cur.english,
-                  signDescription: cur.signDescription,
-                  category: cur.category,
-                  videoUrl: cur.videoUrl,
-                  verifiedBy: cur.verifiedBy
-                });
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
-            >
-              <Video className="w-3.5 h-3.5" />
-              <span>{isEn ? 'Play Sign Video Clip' : 'વિડીયો ક્લિપ પ્લે કરો'}</span>
-            </button>
-          </div>
+            {/* Virtual Signer Box */}
+            <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3 min-h-[200px]">
+              <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center text-3xl animate-pulse">
+                🤟
+              </div>
+              <div>
+                <p className="text-sm font-bold text-amber-300">
+                  {matchedPhrases[activeSignIdx]?.signDescription}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {matchedPhrases[activeSignIdx]?.verifiedBy
+                    ? `${isEn ? 'Reviewed by:' : 'ચકાસણી:'} ${matchedPhrases[activeSignIdx].verifiedBy}`
+                    : (isEn ? 'Draft sign description – not yet reviewed by an ISL educator' : 'ડ્રાફ્ટ વર્ણન – ISL શિક્ષક દ્વારા હજુ ચકાસાયેલ નથી')}
+                </p>
+              </div>
 
-          {/* Sign Sequence Stepper */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {matchedPhrases.map((phrase, idx) => {
-              const isActive = activeSignIdx === idx;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSignIdx(idx)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${
-                    isActive
+              <button
+                onClick={() => {
+                  const cur = matchedPhrases[activeSignIdx];
+                  setActiveVideoModal({
+                    title: cur.gujarati,
+                    gujarati: cur.gujarati,
+                    english: cur.english,
+                    signDescription: cur.signDescription,
+                    category: cur.category,
+                    videoUrl: cur.videoUrl,
+                    verifiedBy: cur.verifiedBy
+                  });
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+              >
+                <Video className="w-3.5 h-3.5" />
+                <span>{isEn ? 'Play Sign Video Clip' : 'વિડીયો ક્લિપ પ્લે કરો'}</span>
+              </button>
+            </div>
+
+            {/* Sign Sequence Stepper */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {matchedPhrases.map((phrase, idx) => {
+                const isActive = activeSignIdx === idx;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveSignIdx(idx)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${isActive
                       ? 'bg-amber-500 text-slate-950 shadow-md ring-2 ring-white/20'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
-                >
-                  {idx + 1}. {phrase.gujarati}
-                </button>
-              );
-            })}
-          </div>
+                      }`}
+                  >
+                    {idx + 1}. {phrase.gujarati}
+                  </button>
+                );
+              })}
+            </div>
 
           </>)}
 
@@ -196,8 +195,8 @@ export const TextToSign = () => {
                 <strong>{isEn ? 'Fingerspelling Fallback:' : 'ફિંગર-સ્પેલિંગ:'}</strong>{' '}
                 {isEn ? 'Words ' : 'શબ્દો '}
                 <span className="font-bold underline">{fingerspelledTokens.join(', ')}</span>{' '}
-                {isEn 
-                  ? 'are not in the curated dictionary and will be fingerspelled letter-by-letter.' 
+                {isEn
+                  ? 'are not in the curated dictionary and will be fingerspelled letter-by-letter.'
                   : 'સીધા શબ્દકોષમાં નથી, તેથી ISL નિયમ મુજબ એક-એક અક્ષરથી હસ્તમુદ્રા દ્વારા રજૂ થશે.'}
               </div>
             </div>

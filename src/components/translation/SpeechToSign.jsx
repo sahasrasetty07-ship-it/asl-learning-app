@@ -173,7 +173,7 @@ export const SpeechToSign = () => {
                 onClick={() => handleSelectTestPhrase(txt)}
                 className="text-[11px] bg-slate-100 hover:bg-purple-50 text-slate-700 hover:text-purple-900 px-3 py-1 rounded-full transition border border-slate-200"
               >
-                "{txt}"
+                {txt}
               </button>
             ))}
           </div>
@@ -198,7 +198,7 @@ export const SpeechToSign = () => {
         </div>
         {spokenText ? (
           <p className="text-base font-bold text-slate-900 bg-purple-50/50 p-3 rounded-xl border border-purple-200">
-            "{spokenText}"
+            {spokenText}
           </p>
         ) : (
           <p className="text-xs text-slate-400 italic p-3 rounded-xl border border-dashed border-slate-200">
