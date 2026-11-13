@@ -10,156 +10,156 @@ export const signVideos = {
     type: 'alphabet',
     gujarati: 'ક',
     word: 'કમળ',
-    youtubeId: null,
-    startTime: null,
-    endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    youtubeId: 'anQpnGwvkG4',
+    startTime: 1,
+    endTime: 3,
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   kha: {
     id: 'kha',
     type: 'alphabet',
     gujarati: 'ખ',
     word: 'ખલ',
-    youtubeId: null,
-    startTime: null,
-    endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    youtubeId: 'bP0ibVNj7TU',
+    startTime: 2,
+    endTime: 7,
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   ga: {
     id: 'ga',
     type: 'alphabet',
     gujarati: 'ગ',
-    word: 'ગણપતિ',
-    youtubeId: null,
+    word: 'ગંગટોક',
+    youtubeId: 'fyyWZWqh3BI',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   gha: {
     id: 'gha',
     type: 'alphabet',
     gujarati: 'ઘ',
     word: 'ઘર',
-    youtubeId: null,
+    youtubeId: 'U--0FZU2bDg',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   cha: {
     id: 'cha',
     type: 'alphabet',
     gujarati: 'ચ',
     word: 'ચકલી',
-    youtubeId: null,
+    youtubeId: '04Y_zC6sQ80',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   chha: {
     id: 'chha',
     type: 'alphabet',
     gujarati: 'છ',
     word: 'છત્રી',
-    youtubeId: null,
+    youtubeId: '1xTATM3v8k4',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   ja: {
     id: 'ja',
     type: 'alphabet',
     gujarati: 'જ',
-    word: 'જમરૂખ',
-    youtubeId: null,
+    word: 'જંક્શન',
+    youtubeId: 'kxDJnposaNk',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   zha: {
     id: 'zha',
     type: 'alphabet',
     gujarati: 'ઝ',
-    word: 'ઝાડ',
-    youtubeId: null,
+    word: 'ઝાડુ',
+    youtubeId: '_XI-ZBIFNdU',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   ta: {
     id: 'ta',
     type: 'alphabet',
     gujarati: 'ટ',
-    word: 'ટમેટું',
-    youtubeId: null,
+    word: 'ટકાવારી',
+    youtubeId: 'IMZb4D-ulNs',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   na: {
     id: 'na',
     type: 'alphabet',
     gujarati: 'ન',
-    word: 'નળ',
-    youtubeId: null,
+    word: 'નકલ',
+    youtubeId: 'vSEUaTn35j4',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   pa: {
     id: 'pa',
     type: 'alphabet',
     gujarati: 'પ',
     word: 'પતંગ',
-    youtubeId: null,
+    youtubeId: 'iLrSnUDmfC4',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   a: {
     id: 'a',
     type: 'alphabet',
     gujarati: 'અ',
-    word: 'અનાનસ',
-    youtubeId: null,
+    word: 'અંકગણિત સરેરાશ (Arithmetic Mean)',
+    youtubeId: 'sVT6S-xJcbQ',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
   aa: {
     id: 'aa',
     type: 'alphabet',
     gujarati: 'આ',
-    word: 'આકાશ / કેરી',
-    youtubeId: null,
+    word: 'આકાશ',
+    youtubeId: 'wK63rmj8--U',
     startTime: null,
     endTime: null,
-    status: 'pending',
-    source: 'ISLRTC',
-    verifiedBy: null
+    status: 'approved',
+    source: 'ISLRTC Gujarati dictionary',
+    verifiedBy: 'User visual verification'
   },
 
   // --- Gujarati Numbers (૧ to ૧૦) ---
@@ -168,11 +168,11 @@ export const signVideos = {
     type: 'number',
     number: '૧',
     word: 'એક',
-    youtubeId: null,
+    youtubeId: 'K0saQgxc3OU',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n2: {
@@ -180,11 +180,11 @@ export const signVideos = {
     type: 'number',
     number: '૨',
     word: 'બે',
-    youtubeId: null,
+    youtubeId: 'MBJe-opDrVg',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n3: {
@@ -192,11 +192,11 @@ export const signVideos = {
     type: 'number',
     number: '૩',
     word: 'ત્રણ',
-    youtubeId: null,
+    youtubeId: '_KtmAUfK7oM',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n4: {
@@ -204,11 +204,11 @@ export const signVideos = {
     type: 'number',
     number: '૪',
     word: 'ચાર',
-    youtubeId: null,
+    youtubeId: '4x1ptujpYik',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n5: {
@@ -216,11 +216,11 @@ export const signVideos = {
     type: 'number',
     number: '૫',
     word: 'પાંચ',
-    youtubeId: null,
+    youtubeId: 'BYnUpQfk3Ts',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n6: {
@@ -228,11 +228,11 @@ export const signVideos = {
     type: 'number',
     number: '૬',
     word: 'છ',
-    youtubeId: null,
+    youtubeId: 'm6Uby73Tg3s',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n7: {
@@ -240,11 +240,11 @@ export const signVideos = {
     type: 'number',
     number: '૭',
     word: 'સાત',
-    youtubeId: null,
+    youtubeId: 'HV7L78k5KeE',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n8: {
@@ -252,11 +252,11 @@ export const signVideos = {
     type: 'number',
     number: '૮',
     word: 'આઠ',
-    youtubeId: null,
+    youtubeId: 'T7J3gDE8hNA',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n9: {
@@ -264,11 +264,11 @@ export const signVideos = {
     type: 'number',
     number: '૯',
     word: 'નવ',
-    youtubeId: null,
+    youtubeId: '1VHhWnMU21Y',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   },
   n10: {
@@ -276,11 +276,11 @@ export const signVideos = {
     type: 'number',
     number: '૧૦',
     word: 'દસ',
-    youtubeId: null,
+    youtubeId: 'Y9MkvKtXngo',
     startTime: null,
     endTime: null,
     status: 'pending',
-    source: 'ISLRTC',
+    source: 'ISLRTC Gujarati dictionary',
     verifiedBy: null
   }
 };
