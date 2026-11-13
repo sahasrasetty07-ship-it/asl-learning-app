@@ -74,6 +74,11 @@ export const initialStudentData = {
       id: 'asg-1',
       title: 'અક્ષર ‘ગ’ અને ‘ઘ’ ૫ વખત પેડ પર લખો',
       subject: 'ગુજરાતી',
+      subjectKey: 'gujarati',
+      exerciseType: 'writing',
+      count: 5,
+      done: 0,
+      correct: 0,
       dueDate: 'આવતીકાલે',
       teacher: 'શ્રીમતી નીતાબેન જોશી',
       status: 'બાકી'
@@ -82,7 +87,12 @@ export const initialStudentData = {
       id: 'asg-2',
       title: 'બાદબાકીના ૫ દાખલા ગણો',
       subject: 'ગણિત',
-      dueDate: '૧૧ નવેમ્બર',
+      subjectKey: 'math',
+      exerciseType: 'subtraction',
+      count: 5,
+      done: 0,
+      correct: 0,
+      dueDate: '૧૫ નવેમ્બર',
       teacher: 'શ્રી હરેશભાઈ શાહ',
       status: 'બાકી'
     }
@@ -99,6 +109,7 @@ export const classStudents = [
     accuracy: '૮૮%',
     strongTopic: 'સૂર્યમંડળ, ૨ નો ઘડિયો',
     weakTopic: 'બાદબાકી અને ભાગાકાર',
+    focus: { subjectKey: 'math', exerciseType: 'subtraction' },
     attendance: '૯૬%',
     lastActive: '૨ કલાક પહેલાં'
   },
@@ -110,6 +121,7 @@ export const classStudents = [
     accuracy: '૯૪%',
     strongTopic: 'ગુજરાતી અક્ષરલેખન, સ્વરો',
     weakTopic: 'ગુણાકારના કોયડા',
+    focus: { subjectKey: 'math', exerciseType: 'multiplication' },
     attendance: '૧૦૦%',
     lastActive: '૧૦ મિનિટ પહેલાં'
   },
@@ -121,6 +133,7 @@ export const classStudents = [
     accuracy: '૭૬%',
     strongTopic: 'વિજ્ઞાન સાઇન સંકેત',
     weakTopic: 'ગુજરાતી જોડાક્ષરો',
+    focus: { subjectKey: 'gujarati', exerciseType: 'writing' },
     attendance: '૮૮%',
     lastActive: '૧ દિવસ પહેલાં'
   },
@@ -132,6 +145,7 @@ export const classStudents = [
     accuracy: '૯૦%',
     strongTopic: 'ગણિત ઘડિયા, સરવાળો',
     weakTopic: 'જળચક્ર પ્રક્રિયા',
+    focus: { subjectKey: 'science', exerciseType: 'water-cycle' },
     attendance: '૯૪%',
     lastActive: '૫ કલાક પહેલાં'
   },
@@ -143,6 +157,7 @@ export const classStudents = [
     accuracy: '૮૨%',
     strongTopic: 'સંખ્યા ૧ થી ૧૦ સાઇન',
     weakTopic: 'વાક્ય લેખન',
+    focus: { subjectKey: 'gujarati', exerciseType: 'writing' },
     attendance: '૯૦%',
     lastActive: 'ગઈકાલે'
   }

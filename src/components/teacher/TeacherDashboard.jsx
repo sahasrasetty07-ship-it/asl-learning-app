@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { mathLessons } from '../../data/mathLessons';
+import { scienceLessons } from '../../data/scienceLessons';
 import { 
   Users, 
   PlusCircle, 
@@ -10,11 +12,37 @@ import {
   Calendar, 
   Search, 
   Eye, 
-  X 
+  X,
+  RotateCcw
 } from 'lucide-react';
 
+// What a teacher can assign: subject -> topics (exerciseType ids understood by the student modules)
+const SUBJECTS = {
+  math: {
+    label: 'ગણિત',
+    en: 'Mathematics',
+    topics: [{ id: 'mixed', title: 'મિશ્ર દાખલા (+ − × ÷)' }, ...mathLessons.operations.map(o => ({ id: o.id, title: o.title }))]
+  },
+  science: {
+    label: 'વિજ્ઞાન',
+    en: 'Science',
+    topics: scienceLessons.map(l => ({ id: l.id, title: l.title }))
+  },
+  gujarati: {
+    label: 'ગુજરાતી',
+    en: 'Gujarati',
+    topics: [{ id: 'writing', title: 'અક્ષર લેખન (Letter writing)' }]
+  }
+};
+const COUNTS = [5, 10, 20];
+
 export const TeacherDashboard = () => {
-  const { studentsList, showToast, uiLanguage, addAssignment } = useApp();
+  const {
+    studentsList, student, showToast, uiLanguage, addAssignment,
+    setCurrentRole, setIsMobileFrame, setActiveTab
+  } = useApp();
+  const assignments = student.pendingAssignments.filter(a => a.count > 0);
+  const completedCount = assignments.filter(a => a.status === 'પૂર્ણ').length;
   const isEn = uiLanguage === 'en';
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,8 +50,30 @@ export const TeacherDashboard = () => {
   const [selectedStudentForDetail, setSelectedStudentForDetail] = useState(null);
 
   const [assignmentTitle, setAssignmentTitle] = useState('');
-  const [assignmentSubject, setAssignmentSubject] = useState('ગુજરાતી');
+  const [subjectKey, setSubjectKey] = useState('math');
+  const [topicId, setTopicId] = useState('mixed');
+  const [questionCount, setQuestionCount] = useState(10);
   const [dueDate, setDueDate] = useState('Nov 15, 2026');
+
+  const openAssignModal = (focus = { subjectKey: 'math', exerciseType: 'mixed' }) => {
+    setSubjectKey(focus.subjectKey);
+    setTopicId(focus.exerciseType);
+    setAssignmentTitle('');
+    setShowCreateModal(true);
+  };
+
+  const assignAgain = (asg) => {
+    const { id, done, correct, status, ...rest } = asg;
+    addAssignment(rest);
+    showToast(isEn ? `Assigned again: ${asg.title}` : `ફરીથી ફાળવ્યું: ${asg.title}`);
+  };
+
+  // Opens the student lesson screens full-width so the teacher can teach from them in class
+  const teachInClass = (tab) => {
+    setCurrentRole('student');
+    setIsMobileFrame(false);
+    setActiveTab(tab);
+  };
 
   const filteredStudents = studentsList.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.rollNo.includes(searchTerm)
@@ -31,18 +81,23 @@ export const TeacherDashboard = () => {
 
   const handleCreateAssignment = (e) => {
     e.preventDefault();
-    if (!assignmentTitle.trim()) return;
+    const topic = SUBJECTS[subjectKey].topics.find(t => t.id === topicId);
+    const title = assignmentTitle.trim()
+      || `${topic.title} – ${questionCount} ${isEn ? 'questions' : 'પ્રશ્નો'}`;
 
     addAssignment({
-      title: assignmentTitle.trim(),
-      subject: assignmentSubject,
+      title,
+      subject: SUBJECTS[subjectKey].label,
+      subjectKey,
+      exerciseType: topicId,
+      count: questionCount,
       dueDate,
       teacher: isEn ? 'Class Teacher' : 'વર્ગ શિક્ષક'
     });
 
     showToast(isEn 
-      ? `Assignment "${assignmentTitle}" assigned to all students!` 
-      : `નવું સ્વાધ્યાય "${assignmentTitle}" સમગ્ર વર્ગને સફળતાપૂર્વક ફાળવવામાં આવ્યું!`);
+      ? `Assignment "${title}" assigned to all students!` 
+      : `નવું સ્વાધ્યાય "${title}" સમગ્ર વર્ગને સફળતાપૂર્વક ફાળવવામાં આવ્યું!`);
     setShowCreateModal(false);
     setAssignmentTitle('');
   };
@@ -67,7 +122,7 @@ export const TeacherDashboard = () => {
           </div>
 
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => openAssignModal()}
             className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 shadow-md self-start sm:self-auto"
           >
             <PlusCircle className="w-4 h-4" />
@@ -102,9 +157,9 @@ export const TeacherDashboard = () => {
           <span className="text-[11px] font-bold text-slate-500">
             {isEn ? 'Completed Homework' : 'પૂર્ણ થયેલ સ્વાધ્યાય'}
           </span>
-          <div className="text-2xl font-black text-emerald-600 mt-1">42</div>
+          <div className="text-2xl font-black text-emerald-600 mt-1">{completedCount} / {assignments.length}</div>
           <p className="text-[10px] text-slate-400 mt-0.5">
-            {isEn ? 'This week' : 'આ અઠવાડિયે'}
+            {isEn ? 'Assignments done' : 'પૂર્ણ સ્વાધ્યાય'}
           </p>
         </div>
 
@@ -118,6 +173,80 @@ export const TeacherDashboard = () => {
           <p className="text-[10px] text-slate-400 mt-0.5">
             {isEn ? 'Mathematics' : 'ગણિત વિષય'}
           </p>
+        </div>
+      </div>
+
+      {/* Teach in class: open lesson screens full-width */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+        <div>
+          <h3 className="text-base font-bold text-slate-900">{isEn ? 'Teach in Class' : 'વર્ગમાં ભણાવો'}</h3>
+          <p className="text-xs text-slate-500">
+            {isEn ? 'Open a lesson full-screen to teach with signs, visuals and examples.' : 'સંકેતો અને ચિત્રો સાથે ભણાવવા પાઠ મોટી સ્ક્રીન પર ખોલો.'}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {[
+            { tab: 'gujarati', icon: '🔤', en: 'Gujarati letters & numbers', gu: 'ગુજરાતી અક્ષરો અને સંખ્યા' },
+            { tab: 'math', icon: '➗', en: 'Maths: tables & operations', gu: 'ગણિત: ઘડિયા અને ક્રિયાઓ' },
+            { tab: 'science', icon: '🔬', en: 'Science lessons', gu: 'વિજ્ઞાનના પાઠ' }
+          ].map(l => (
+            <button
+              key={l.tab}
+              onClick={() => teachInClass(l.tab)}
+              className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-left transition"
+            >
+              <span className="text-2xl">{l.icon}</span>
+              <span className="text-xs font-bold text-slate-800">{isEn ? l.en : l.gu}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Assigned practice sets and their progress */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+        <div>
+          <h3 className="text-base font-bold text-slate-900">{isEn ? 'Assigned Practice' : 'આપેલ મહાવરો'}</h3>
+          <p className="text-xs text-slate-500">
+            {isEn
+              ? 'Live progress of Aarav Patel (demo student). Assign a set again to repeat the practice.'
+              : 'આરવ પટેલ (ડેમો વિદ્યાર્થી)ની પ્રગતિ. મહાવરો ફરી કરાવવા ફરીથી ફાળવો.'}
+          </p>
+        </div>
+        {assignments.length === 0 && (
+          <p className="text-xs text-slate-400">{isEn ? 'No practice assigned yet.' : 'હજુ કોઈ મહાવરો આપ્યો નથી.'}</p>
+        )}
+        <div className="space-y-2">
+          {assignments.map(asg => {
+            const finished = asg.status === 'પૂર્ણ';
+            return (
+              <div key={asg.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">{asg.title}</p>
+                  <p className="text-[11px] text-slate-500">
+                    {isEn ? SUBJECTS[asg.subjectKey]?.en : asg.subject} · {isEn ? 'Due' : 'મુદત'} {asg.dueDate}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 sm:w-56">
+                  <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${finished ? 'bg-emerald-500' : 'bg-blue-600'}`}
+                      style={{ width: `${(100 * asg.done) / asg.count}%` }}
+                    />
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-700 whitespace-nowrap">
+                    {asg.done}/{asg.count} · {isEn ? `${asg.correct} correct` : `${asg.correct} સાચા`}
+                  </span>
+                </div>
+                <button
+                  onClick={() => assignAgain(asg)}
+                  className="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-[11px] transition inline-flex items-center gap-1 self-start sm:self-auto"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>{isEn ? 'Assign again' : 'ફરી ફાળવો'}</span>
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -177,9 +306,20 @@ export const TeacherDashboard = () => {
                   <td className="p-3 font-bold text-emerald-600">{student.accuracy}</td>
                   <td className="p-3 text-slate-600">{student.strongTopic}</td>
                   <td className="p-3">
-                    <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
-                      {student.weakTopic}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
+                        {student.weakTopic}
+                      </span>
+                      {student.focus && (
+                        <button
+                          onClick={() => openAssignModal(student.focus)}
+                          title={isEn ? 'Assign practice for this topic' : 'આ વિષયનો મહાવરો આપો'}
+                          className="p-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+                        >
+                          <PlusCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="p-3 text-right">
                     <button
@@ -216,30 +356,67 @@ export const TeacherDashboard = () => {
             <form onSubmit={handleCreateAssignment} className="space-y-3">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  {isEn ? 'Select Subject:' : 'વિષય પસંદ કરો:'}
+                  {isEn ? 'Subject:' : 'વિષય:'}
                 </label>
                 <select
-                  value={assignmentSubject}
-                  onChange={(e) => setAssignmentSubject(e.target.value)}
+                  value={subjectKey}
+                  onChange={(e) => {
+                    setSubjectKey(e.target.value);
+                    setTopicId(SUBJECTS[e.target.value].topics[0].id);
+                  }}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                 >
-                  <option value="ગુજરાતી">{isEn ? 'Gujarati (Letters / Writing Pad)' : 'ગુજરાતી (મૂળાક્ષરો / વાક્ય લેખન)'}</option>
-                  <option value="ગણિત">{isEn ? 'Mathematics (Tables / Operations)' : 'ગણિત (ઘડિયા / સરવાળા-બાદબાકી)'}</option>
-                  <option value="વિજ્ઞાન">{isEn ? 'General Science (ISL Concept Signs)' : 'વિજ્ઞાન (સૂર્યમંડળ / પ્રયોગ સાઇન)'}</option>
+                  {Object.entries(SUBJECTS).map(([key, sub]) => (
+                    <option key={key} value={key}>{isEn ? sub.en : sub.label}</option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  {isEn ? 'Assignment Title:' : 'સ્વાધ્યાયનું શીર્ષક:'}
+                  {isEn ? 'Topic:' : 'મુદ્દો:'}
+                </label>
+                <select
+                  value={topicId}
+                  onChange={(e) => setTopicId(e.target.value)}
+                  className="w-full p-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                >
+                  {SUBJECTS[subjectKey].topics.map(t => (
+                    <option key={t.id} value={t.id}>{t.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  {isEn ? 'Number of exercises:' : 'કુલ પ્રશ્નો:'}
+                </label>
+                <div className="flex gap-2">
+                  {COUNTS.map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setQuestionCount(n)}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold border transition ${
+                        questionCount === n ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  {isEn ? 'Note for students (optional):' : 'વિદ્યાર્થીઓ માટે નોંધ (વૈકલ્પિક):'}
                 </label>
                 <input
                   type="text"
-                  placeholder={isEn ? "e.g., Write letters 'ગ' and 'ઘ' 5 times on canvas" : "દા.ત. અક્ષર ‘ગ’ અને ‘ઘ’ ૫ વખત પેડ પર લખો"}
+                  placeholder={isEn ? 'Leave empty to use the topic name' : 'ખાલી રાખો તો મુદ્દાનું નામ વપરાશે'}
                   value={assignmentTitle}
                   onChange={(e) => setAssignmentTitle(e.target.value)}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
                 />
               </div>
 

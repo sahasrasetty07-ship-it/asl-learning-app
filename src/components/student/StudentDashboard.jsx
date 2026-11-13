@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 
 export const StudentDashboard = () => {
-  const { student, setActiveTab, speakText, uiLanguage } = useApp();
+  const { student, setActiveTab, startAssignment, speakText, uiLanguage } = useApp();
+  const openAssignments = student.pendingAssignments.filter(a => a.status !== 'પૂર્ણ');
   const isEn = uiLanguage === 'en';
 
   const learningCards = [
@@ -171,7 +172,7 @@ export const StudentDashboard = () => {
             </h3>
           </div>
           <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-            {student.pendingAssignments.length} {isEn ? 'Pending' : 'બાકી'}
+            {openAssignments.length} {isEn ? 'Pending' : 'બાકી'}
           </span>
         </div>
 
@@ -190,18 +191,36 @@ export const StudentDashboard = () => {
                   <span>•</span>
                   <span>{isEn ? 'Teacher:' : 'શિક્ષક:'} {asg.teacher}</span>
                 </div>
+                {asg.count > 0 && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-500" style={{ width: `${(100 * asg.done) / asg.count}%` }} />
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-600">
+                      {asg.done}/{asg.count}{asg.status === 'પૂર્ણ' && ` · ${isEn ? 'Score' : 'સ્કોર'} ${asg.correct}/${asg.count}`}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              <button
-                onClick={() => {
-                  if (asg.subject.includes('ગુજરાતી')) setActiveTab('gujarati');
-                  else if (asg.subject.includes('ગણિત')) setActiveTab('math');
-                  else if (asg.subject.includes('વિજ્ઞાન')) setActiveTab('science');
-                }}
-                className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition active:scale-95 shrink-0"
-              >
-                {isEn ? 'Open' : 'લખો'}
-              </button>
+              {asg.status === 'પૂર્ણ' ? (
+                <span className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold shrink-0">
+                  {isEn ? 'Done ✓' : 'પૂર્ણ ✓'}
+                </span>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (asg.subjectKey) return startAssignment(asg);
+                    // older free-text assignments: just open the subject
+                    if (asg.subject.includes('ગુજરાતી')) setActiveTab('gujarati');
+                    else if (asg.subject.includes('ગણિત')) setActiveTab('math');
+                    else if (asg.subject.includes('વિજ્ઞાન')) setActiveTab('science');
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition active:scale-95 shrink-0"
+                >
+                  {asg.done > 0 ? (isEn ? 'Continue' : 'ચાલુ રાખો') : (isEn ? 'Start' : 'શરૂ કરો')}
+                </button>
+              )}
             </div>
           ))}
         </div>

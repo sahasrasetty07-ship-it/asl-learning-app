@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { mathLessons, generateProblem } from '../../data/mathLessons';
+import { AssignmentBanner } from '../common/AssignmentBanner';
 import { 
   Calculator, 
   Table, 
@@ -17,17 +18,20 @@ import {
 } from 'lucide-react';
 
 export const MathModule = () => {
-  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, showToast, uiLanguage } = useApp();
+  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, activeAssignment, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
   
   // Sub-tabs: 'tables' | 'operations' | 'practice'
-  const [subTab, setSubTab] = useState('tables');
+  // A math assignment opens straight into practice of the assigned type
+  const assignedType = activeAssignment?.subjectKey === 'math' ? activeAssignment.exerciseType : null;
+  const [subTab, setSubTab] = useState(assignedType ? 'practice' : 'tables');
   const [selectedTable, setSelectedTable] = useState(mathLessons.tables[0]);
   const [selectedOp, setSelectedOp] = useState(mathLessons.operations[0]);
   
   // Practice quiz state: endless generated problems, answered on a Gujarati digit keypad
-  const [practiceType, setPracticeType] = useState('mixed');
-  const [currentProblem, setCurrentProblem] = useState(() => generateProblem());
+  const [practiceType, setPracticeType] = useState(assignedType || 'mixed');
+  const [currentProblem, setCurrentProblem] = useState(() =>
+    generateProblem(assignedType && assignedType !== 'mixed' ? assignedType : undefined));
   const [problemCount, setProblemCount] = useState(1);
   const [answerInput, setAnswerInput] = useState('');
   const [isAnswered, setIsAnswered] = useState(false);
@@ -47,10 +51,10 @@ export const MathModule = () => {
     setIsCorrect(correct);
 
     if (correct) {
-      recordExerciseSuccess('math', 10, `Math: ${currentProblem.question}`);
+      recordExerciseSuccess('math', 10, `Math: ${currentProblem.question}`, currentProblem.type);
       speakText('Correct answer! Well done!');
     } else {
-      recordExerciseAttempt('math', false, `Math: ${currentProblem.question}`);
+      recordExerciseAttempt('math', false, `Math: ${currentProblem.question}`, 0, currentProblem.type);
       speakText('Try again. Check the correct answer.');
     }
   };
@@ -265,7 +269,8 @@ export const MathModule = () => {
       {/* ===================== SUBTAB 3: PRACTICE ASSESSMENT ===================== */}
       {subTab === 'practice' && (
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
+          <AssignmentBanner subjectKey="math" />
+          {!assignedType && <div className="flex flex-wrap gap-2">
             {[{ id: 'mixed', title: isEn ? 'Mixed' : 'મિશ્ર' }, ...mathLessons.operations].map(op => (
               <button
                 key={op.id}
@@ -277,7 +282,7 @@ export const MathModule = () => {
                 {op.title}
               </button>
             ))}
-          </div>
+          </div>}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">

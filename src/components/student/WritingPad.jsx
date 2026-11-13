@@ -331,7 +331,7 @@ export const WritingPad = ({
 
     setScoreResult({ score, message, stars });
 
-    recordExerciseAttempt(subject, stars > 0, `Letter '${targetLetter}' Practice`, stars * 5);
+    recordExerciseAttempt(subject, stars > 0, `Letter '${targetLetter}' Practice`, stars * 5, 'writing');
     if (stars > 0) speakText(targetLetter);
   };
 

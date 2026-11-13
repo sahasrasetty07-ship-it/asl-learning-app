@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { gujaratiAlphabets, sampleSentences } from '../../data/gujaratiAlphabets';
 import { gujaratiNumbers } from '../../data/gujaratiNumbers';
 import { WritingPad } from './WritingPad';
+import { AssignmentBanner } from '../common/AssignmentBanner';
 import { 
   BookOpen, 
   Hash, 
@@ -78,6 +79,7 @@ export const GujaratiModule = () => {
 
   return (
     <div className="space-y-4 pb-6">
+      <AssignmentBanner subjectKey="gujarati" />
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden">
         <div className="relative z-10">

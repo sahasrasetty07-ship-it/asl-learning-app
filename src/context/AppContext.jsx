@@ -113,10 +113,25 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem(STUDENT_KEY, JSON.stringify(student));
   }, [student]);
 
+  // Assignment = a set of `count` exercises of one type: { subjectKey, exerciseType, count, title, ... }.
+  // exerciseType: math op id or 'mixed', science lesson id, or 'writing' for Gujarati letters.
   const addAssignment = (assignment) => setStudent(prev => ({
     ...prev,
-    pendingAssignments: [{ id: `asg-${Date.now()}`, status: 'બાકી', ...assignment }, ...prev.pendingAssignments]
+    pendingAssignments: [
+      { id: `asg-${Date.now()}`, status: 'બાકી', done: 0, correct: 0, ...assignment },
+      ...prev.pendingAssignments
+    ]
   }));
+
+  // The assignment the student is working on right now; attempts count toward it.
+  const [activeAssignmentId, setActiveAssignmentId] = useState(null);
+  const activeAssignment = student.pendingAssignments.find(a => a.id === activeAssignmentId) || null;
+
+  const startAssignment = (asg) => {
+    setActiveAssignmentId(asg.id);
+    setActiveTab(asg.subjectKey);
+  };
+  const stopAssignment = () => setActiveAssignmentId(null);
   const [studentsList, setStudentsList] = useState(classStudents);
   
   // Selected lesson/letter for direct modal preview
@@ -145,7 +160,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Record every exercise attempt; accuracy = correct / attempted.
-  const recordExerciseAttempt = (subjectKey, isCorrect, topicName = '', points = 10) => {
+  const recordExerciseAttempt = (subjectKey, isCorrect, topicName = '', points = 10, exerciseType = null) => {
     setStudent(prev => {
       const currentSubject = prev.subjects[subjectKey] || {};
       const attempted = (currentSubject.attempted || 0) + 1;
@@ -190,7 +205,16 @@ export const AppProvider = ({ children }) => {
           ...prev.subjects,
           [subjectKey]: updatedSubject
         },
-        recentAttempts: [newAttempt, ...prev.recentAttempts.slice(0, 5)]
+        recentAttempts: [newAttempt, ...prev.recentAttempts.slice(0, 5)],
+        pendingAssignments: prev.pendingAssignments.map(asg => {
+          const counts = asg.id === activeAssignmentId
+            && asg.subjectKey === subjectKey
+            && (asg.exerciseType === 'mixed' || asg.exerciseType === exerciseType)
+            && asg.done < asg.count;
+          if (!counts) return asg;
+          const done = asg.done + 1;
+          return { ...asg, done, correct: asg.correct + (isCorrect ? 1 : 0), status: done >= asg.count ? 'પૂર્ણ' : 'ચાલુ' };
+        })
       };
     });
     if (isCorrect) {
@@ -198,8 +222,8 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const recordExerciseSuccess = (subjectKey, points = 10, topicName = '') =>
-    recordExerciseAttempt(subjectKey, true, topicName, points);
+  const recordExerciseSuccess = (subjectKey, points = 10, topicName = '', exerciseType = null) =>
+    recordExerciseAttempt(subjectKey, true, topicName, points, exerciseType);
 
   return (
     <AppContext.Provider
@@ -225,7 +249,10 @@ export const AppProvider = ({ children }) => {
         speakText,
         recordExerciseSuccess,
         recordExerciseAttempt,
-        addAssignment
+        addAssignment,
+        activeAssignment,
+        startAssignment,
+        stopAssignment
       }}
     >
       {children}

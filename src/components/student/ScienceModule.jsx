@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { scienceLessons } from '../../data/scienceLessons';
 import { WritingPad } from './WritingPad';
+import { AssignmentBanner } from '../common/AssignmentBanner';
 import { 
   Atom, 
   Video, 
@@ -15,14 +16,20 @@ import {
 } from 'lucide-react';
 
 export const ScienceModule = () => {
-  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, uiLanguage } = useApp();
+  const { setActiveVideoModal, speakText, recordExerciseSuccess, recordExerciseAttempt, activeAssignment, uiLanguage } = useApp();
   const isEn = uiLanguage === 'en';
   
-  const [selectedLesson, setSelectedLesson] = useState(scienceLessons[0]);
-  const [activeTab, setActiveTab] = useState('concept');
+  // A science assignment opens straight into that lesson's quiz
+  const assignedLesson = activeAssignment?.subjectKey === 'science'
+    ? scienceLessons.find(l => l.id === activeAssignment.exerciseType)
+    : null;
+  const [selectedLesson, setSelectedLesson] = useState(assignedLesson || scienceLessons[0]);
+  const [activeTab, setActiveTab] = useState(assignedLesson ? 'quiz' : 'concept');
   
+  const [questionIdx, setQuestionIdx] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const exercise = selectedLesson.exercises[questionIdx % selectedLesson.exercises.length];
 
   const openSignModal = () => {
     setActiveVideoModal({
@@ -40,18 +47,23 @@ export const ScienceModule = () => {
     if (quizSubmitted) return;
     setSelectedAnswer(opt);
     setQuizSubmitted(true);
-    const correct = opt === selectedLesson.exercise.correctAnswer;
+    const correct = opt === exercise.correctAnswer;
     if (correct) {
-      recordExerciseSuccess('science', 10, `Science: ${selectedLesson.title}`);
+      recordExerciseSuccess('science', 10, `Science: ${selectedLesson.title}`, selectedLesson.id);
       speakText('Great job! Correct science answer.');
     } else {
-      recordExerciseAttempt('science', false, `Science: ${selectedLesson.title}`);
+      recordExerciseAttempt('science', false, `Science: ${selectedLesson.title}`, 0, selectedLesson.id);
     }
   };
 
   const resetQuiz = () => {
     setSelectedAnswer(null);
     setQuizSubmitted(false);
+  };
+
+  const nextQuestion = () => {
+    setQuestionIdx(i => i + 1);
+    resetQuiz();
   };
 
   return (
@@ -85,6 +97,7 @@ export const ScienceModule = () => {
               key={lesson.id}
               onClick={() => {
                 setSelectedLesson(lesson);
+                setQuestionIdx(0);
                 resetQuiz();
               }}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
@@ -243,19 +256,21 @@ export const ScienceModule = () => {
             targetWord={selectedLesson.title}
             letterMeaning={selectedLesson.subtitle}
             onSignClick={openSignModal}
+            subject="science"
           />
         </div>
       )}
 
       {/* ===================== TAB 3: QUIZ ===================== */}
+      {activeTab === 'quiz' && <AssignmentBanner subjectKey="science" />}
       {activeTab === 'quiz' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <span className="text-xs font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
-              {isEn ? 'Science Comprehension Check' : 'વિજ્ઞાન સમજણ કસોટી'}
+              {isEn ? 'Science Comprehension Check' : 'વિજ્ઞાન સમજણ કસોટી'} · {(questionIdx % selectedLesson.exercises.length) + 1}/{selectedLesson.exercises.length}
             </span>
             <button
-              onClick={() => speakText(selectedLesson.exercise.question)}
+              onClick={() => speakText(exercise.question)}
               className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition"
             >
               <Volume2 className="w-4 h-4" />
@@ -264,18 +279,18 @@ export const ScienceModule = () => {
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
             <h4 className="text-lg font-black text-slate-900">
-              {selectedLesson.exercise.question}
+              {exercise.question}
             </h4>
           </div>
 
           {/* Options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {selectedLesson.exercise.options.map((opt, idx) => {
+            {exercise.options.map((opt, idx) => {
               const isSelected = selectedAnswer === opt;
               let btnStyle = 'bg-white border-2 border-slate-200 hover:border-emerald-400 text-slate-800';
 
               if (quizSubmitted) {
-                if (opt === selectedLesson.exercise.correctAnswer) {
+                if (opt === exercise.correctAnswer) {
                   btnStyle = 'bg-emerald-500 border-emerald-600 text-white font-bold shadow-md';
                 } else if (isSelected) {
                   btnStyle = 'bg-rose-500 border-rose-600 text-white font-bold shadow-md';
@@ -292,10 +307,10 @@ export const ScienceModule = () => {
                   className={`py-3.5 px-4 rounded-xl text-sm font-bold transition flex items-center justify-between ${btnStyle}`}
                 >
                   <span>{opt}</span>
-                  {quizSubmitted && opt === selectedLesson.exercise.correctAnswer && (
+                  {quizSubmitted && opt === exercise.correctAnswer && (
                     <CheckCircle2 className="w-5 h-5 text-white" />
                   )}
-                  {quizSubmitted && isSelected && opt !== selectedLesson.exercise.correctAnswer && (
+                  {quizSubmitted && isSelected && opt !== exercise.correctAnswer && (
                     <XCircle className="w-5 h-5 text-white" />
                   )}
                 </button>
@@ -307,17 +322,17 @@ export const ScienceModule = () => {
             <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
               <div>
                 <h5 className="text-sm font-bold text-emerald-900">
-                  {selectedAnswer === selectedLesson.exercise.correctAnswer 
+                  {selectedAnswer === exercise.correctAnswer 
                     ? (isEn ? 'Awesome! Correct Answer! (+10 Stars ⭐)' : 'અદ્ભુત! સાચો જવાબ! (+૧૦ તારા ⭐)')
                     : (isEn ? 'Review the correct answer below:' : 'સાચો ઉત્તર જુઓ.')}
                 </h5>
-                <p className="text-xs text-emerald-800 mt-0.5">{selectedLesson.exercise.explanation}</p>
+                <p className="text-xs text-emerald-800 mt-0.5">{exercise.explanation}</p>
               </div>
               <button
-                onClick={resetQuiz}
+                onClick={nextQuestion}
                 className="px-4 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition self-end sm:self-auto"
               >
-                {isEn ? 'Try Again' : 'ફરી પ્રયાસ કરો'}
+                {isEn ? 'Next Question →' : 'આગળનો પ્રશ્ન →'}
               </button>
             </div>
           )}
