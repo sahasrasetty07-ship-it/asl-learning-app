@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
+import { buildYouTubeEmbedUrl } from '../../data/signVideos';
 import { X, Volume2, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const SignVideoModal = () => {
@@ -24,8 +25,49 @@ export const SignVideoModal = () => {
     meaning, 
     verifiedBy,
     videoUrl,
+    youtubeId,
+    startTime,
+    endTime,
+    status,
     category 
   } = activeVideoModal;
+
+  // Resolve approved YouTube embed URL with optional start & end timestamps
+  const youtubeEmbedUrl = (() => {
+    // Only approved entries with valid video IDs may play
+    if (status && status !== 'approved') return null;
+
+    if (youtubeId && status === 'approved') {
+      return buildYouTubeEmbedUrl(youtubeId, startTime, endTime);
+    }
+
+    if (videoUrl && (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be'))) {
+      if (status !== 'approved') return null;
+      if (videoUrl.includes('/embed/')) {
+        const url = new URL(videoUrl);
+        if (typeof startTime === 'number' && !isNaN(startTime) && startTime >= 0) {
+          url.searchParams.set('start', String(Math.floor(startTime)));
+        }
+        if (typeof endTime === 'number' && !isNaN(endTime) && endTime > 0) {
+          url.searchParams.set('end', String(Math.floor(endTime)));
+        }
+        return url.toString();
+      }
+      const match = videoUrl.match(/(?:youtu\.be\/|watch\?v=)([\w-]{11})/);
+      if (match && match[1]) {
+        return buildYouTubeEmbedUrl(match[1], startTime, endTime);
+      }
+      return videoUrl;
+    }
+
+    return null;
+  })();
+
+  const isDirectVideo = Boolean(
+    videoUrl &&
+    !videoUrl.includes('youtube.com') &&
+    !videoUrl.includes('youtu.be')
+  );
 
   const handleSpeech = () => {
     if (gujarati) speakText(gujarati);
@@ -57,7 +99,16 @@ export const SignVideoModal = () => {
 
         {/* Video Simulation / Signer Display */}
         <div className="relative bg-slate-950 flex flex-col items-center justify-center min-h-[220px] sm:min-h-[260px] p-4 text-center overflow-hidden">
-          {videoUrl ? (
+          {youtubeEmbedUrl ? (
+            <iframe
+              key={youtubeEmbedUrl}
+              src={youtubeEmbedUrl}
+              title={title || (isEn ? 'ISL Sign Demonstration' : 'ISL સંકેત વિડીયો')}
+              className="w-full max-w-[360px] h-[200px] sm:h-[240px] rounded-xl bg-black border-0 shadow-md"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          ) : isDirectVideo ? (
             <video
               ref={videoRef}
               key={videoUrl}
@@ -70,23 +121,23 @@ export const SignVideoModal = () => {
               className="w-full max-w-[360px] max-h-[240px] rounded-xl bg-black"
             />
           ) : (
-          <div className="relative w-full max-w-[280px] h-[200px] bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-4 shadow-inner">
-            <div className="relative flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full bg-amber-500/20 border-2 border-dashed border-amber-400 flex items-center justify-center text-4xl animate-pulse">
-                🤟
+            <div className="relative w-full max-w-[280px] h-[200px] bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-4 shadow-inner">
+              <div className="relative flex items-center justify-center">
+                <div className="w-24 h-24 rounded-full bg-amber-500/20 border-2 border-dashed border-amber-400 flex items-center justify-center text-4xl animate-pulse">
+                  🤟
+                </div>
+                <div className="absolute -bottom-2 bg-slate-950/90 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-400/40 font-mono">
+                  {playbackRate}x {isEn ? 'Speed' : 'સ્પીડ'}
+                </div>
               </div>
-              <div className="absolute -bottom-2 bg-slate-950/90 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-400/40 font-mono">
-                {playbackRate}x {isEn ? 'Speed' : 'સ્પીડ'}
-              </div>
-            </div>
 
-            <p className="text-white font-bold text-lg mt-3">
-              {isEn ? `Sign for "${gujarati}"` : `"${gujarati}" નો સાઇન સંકેત`}
-            </p>
-            <p className="text-xs text-slate-300 mt-0.5">
-              {isEn ? 'Video not recorded yet – follow the steps below' : 'વિડીયો હજુ ઉપલબ્ધ નથી – નીચેની વિગત અનુસરો'}
-            </p>
-          </div>
+              <p className="text-white font-bold text-lg mt-3">
+                {isEn ? `Sign for "${gujarati}"` : `"${gujarati}" નો સાઇન સંકેત`}
+              </p>
+              <p className="text-xs text-slate-300 mt-0.5">
+                {isEn ? 'Video not recorded yet – follow the steps below' : 'વિડીયો હજુ ઉપલબ્ધ નથી – નીચેની વિગત અનુસરો'}
+              </p>
+            </div>
           )}
 
           {/* Subtitles in Gujarati */}

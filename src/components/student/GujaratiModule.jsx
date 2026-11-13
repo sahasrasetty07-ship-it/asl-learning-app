@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { gujaratiAlphabets, sampleSentences } from '../../data/gujaratiAlphabets';
 import { gujaratiNumbers } from '../../data/gujaratiNumbers';
+import { getSignVideo } from '../../data/signVideos';
 import { WritingPad } from './WritingPad';
 import { AssignmentBanner } from '../common/AssignmentBanner';
 import { 
@@ -65,6 +66,7 @@ export const GujaratiModule = () => {
   };
 
   const openSignModal = (item) => {
+    const videoEntry = getSignVideo(item?.id);
     setActiveVideoModal({
       title: `${item.name || item.word} - ISL Sign`,
       gujarati: item.letter || item.number || item.word,
@@ -73,7 +75,13 @@ export const GujaratiModule = () => {
       handShape: item.handShape,
       meaning: item.meaning,
       category: item.category || 'Gujarati Learning',
-      videoUrl: item.videoUrl
+      videoUrl: item.videoUrl || null,
+      youtubeId: videoEntry?.youtubeId || null,
+      startTime: videoEntry?.startTime ?? null,
+      endTime: videoEntry?.endTime ?? null,
+      status: videoEntry?.status || 'pending',
+      source: videoEntry?.source || 'ISLRTC',
+      verifiedBy: videoEntry?.verifiedBy || null
     });
   };
 
