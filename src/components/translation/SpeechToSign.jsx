@@ -1,16 +1,135 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { phrasebookData } from '../../data/phrasebookData';
+import { gujaratiAlphabets } from '../../data/gujaratiAlphabets';
+import { gujaratiNumbers } from '../../data/gujaratiNumbers';
 import {
   Mic,
   MicOff,
   Sparkles,
   Volume2,
   Video,
-  RefreshCcw,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+
+// Normalize text for consistent matching: Unicode NFC, strip punctuation, collapse whitespace
+const stripPunct = (s) =>
+  (s || '')
+    .normalize('NFC')
+    .replace(/[,।.?!:;"]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+// Pre-compiled list of verified dictionary items from project data.
+// Note: Individual alphabet letters (ક, ખ, ગ) are intentionally omitted because
+// gujaratiAlphabets only contains concept signs for example words (કમળ, ખલ), not ISL letter signs.
+const buildApprovedDictionary = () => {
+  const dict = [];
+  const seen = new Set();
+
+  // 1. Curated Multi-word & Single-word Phrases (highest priority)
+  phrasebookData.forEach(p => {
+    const key = stripPunct(p.gujarati);
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      dict.push({
+        gujarati: p.gujarati,
+        english: p.english,
+        signDescription: p.signDescription,
+        handShape: p.handShape || null,
+        meaning: p.meaning || null,
+        category: p.category || 'અભિવાદન/વાક્ય',
+        matchType: 'phrase'
+      });
+    }
+  });
+
+  // 2. Verified ISL Number Signs (words like એક, બે and numerals ૧, ૨)
+  gujaratiNumbers.forEach(n => {
+    const keyWord = stripPunct(n.word);
+    if (keyWord && !seen.has(keyWord)) {
+      seen.add(keyWord);
+      dict.push({
+        gujarati: n.word,
+        english: n.englishWord,
+        signDescription: n.signDescription,
+        handShape: n.handShape || null,
+        meaning: `${n.englishNumber} - ${n.objectName || ''}`,
+        category: 'સંખ્યા (Numbers)',
+        matchType: 'number'
+      });
+    }
+    const keyNum = stripPunct(n.number);
+    if (keyNum && !seen.has(keyNum)) {
+      seen.add(keyNum);
+      dict.push({
+        gujarati: n.number,
+        english: `${n.word} (${n.englishNumber})`,
+        signDescription: n.signDescription,
+        handShape: n.handShape || null,
+        meaning: n.objectName || null,
+        category: 'સંખ્યા (Numbers)',
+        matchType: 'number'
+      });
+    }
+  });
+
+  // 3. Verified Concept Words from Alphabet curriculum (e.g. કમળ, ખલ, ગણપતિ, ઘર)
+  // Only the concept word is added since signDescription represents the object, not the letter.
+  gujaratiAlphabets.forEach(a => {
+    if (a.word) {
+      const keyWord = stripPunct(a.word);
+      if (keyWord && !seen.has(keyWord)) {
+        seen.add(keyWord);
+        dict.push({
+          gujarati: a.word,
+          english: a.wordEnglish || a.word,
+          signDescription: a.signDescription,
+          handShape: a.handShape || null,
+          meaning: a.meaning || null,
+          category: a.category || 'શબ્દ (Word)',
+          matchType: 'word'
+        });
+      }
+    }
+  });
+
+  // Sort longest first so multi-word phrases match before individual words
+  return dict.sort((a, b) => stripPunct(b.gujarati).length - stripPunct(a.gujarati).length);
+};
+
+const APPROVED_DICTIONARY = buildApprovedDictionary();
+
+// Reliable longest-phrase matcher with exact boundary matching (prevents false matches like "ના" inside "નામ")
+export const matchSpeechToSigns = (rawText) => {
+  if (!rawText || !rawText.trim()) {
+    return { matches: [], unmatchedWords: [] };
+  }
+
+  const normalized = stripPunct(rawText);
+  let rest = ` ${normalized} `;
+  const found = [];
+
+  APPROVED_DICTIONARY.forEach(item => {
+    const phrase = stripPunct(item.gujarati);
+    if (!phrase) return;
+    const target = ` ${phrase} `;
+    let pos = rest.indexOf(target);
+    while (pos !== -1) {
+      found.push({ item, pos });
+      // Mask out the matched portion with spaces so it cannot be re-matched
+      rest = rest.slice(0, pos + 1) + ' '.repeat(phrase.length) + rest.slice(pos + 1 + phrase.length);
+      pos = rest.indexOf(target);
+    }
+  });
+
+  // Preserve the order of speech in the sentence
+  const matches = found.sort((a, b) => a.pos - b.pos).map(f => f.item);
+  const unmatchedWords = rest.split(/\s+/).filter(Boolean);
+
+  return { matches, unmatchedWords };
+};
 
 export const SpeechToSign = () => {
   const { setActiveVideoModal, speakText, showToast, uiLanguage } = useApp();
@@ -19,6 +138,7 @@ export const SpeechToSign = () => {
   const [isListening, setIsListening] = useState(false);
   const [spokenText, setSpokenText] = useState('');
   const [matchedSigns, setMatchedSigns] = useState([]);
+  const [unmatchedWords, setUnmatchedWords] = useState([]);
   const [speechSupported, setSpeechSupported] = useState(true);
   const recognitionRef = useRef(null);
 
@@ -90,25 +210,14 @@ export const SpeechToSign = () => {
   };
 
   const processSpeech = (text) => {
-    if (!text.trim()) {
+    if (!text || !text.trim()) {
       setMatchedSigns([]);
+      setUnmatchedWords([]);
       return;
     }
-
-    const words = text.split(/[\s,।.?]+/).filter(Boolean);
-    const matches = [];
-
-    words.forEach(w => {
-      const match = phrasebookData.find(item =>
-        item.gujarati.includes(w) || w.includes(item.gujarati)
-      );
-      if (match && !matches.some(m => m.gujarati === match.gujarati)) {
-        matches.push(match);
-      }
-    });
-
-    // Only return genuine matches; never fall back to unrelated signs
+    const { matches, unmatchedWords: unmatched } = matchSpeechToSigns(text);
     setMatchedSigns(matches);
+    setUnmatchedWords(unmatched);
   };
 
   return (
@@ -124,7 +233,7 @@ export const SpeechToSign = () => {
           </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mt-0.5">
             {isEn
-              ? 'Spoken Gujarati is transcribed to text and mapped directly to approved ISL sign clips.'
+              ? 'Spoken Gujarati is transcribed to text and mapped directly to approved ISL sign guides.'
               : 'ગુજરાતી અવાજ આપોઆપ લખાણમાં રૂપાંતરિત થઈને અધિકૃત ISL સંકેતો દર્શાવશે.'}
           </p>
         </div>
@@ -166,7 +275,9 @@ export const SpeechToSign = () => {
               'નમસ્તે, તમારું નામ શું છે?',
               'મને મદદ જોઈએ છે',
               'હું વિદ્યાર્થી છું',
-              'શુભ સવાર'
+              'શુભ સવાર',
+              'કમળ અને ઘર',
+              'એક બે ત્રણ'
             ].map(txt => (
               <button
                 key={txt}
@@ -209,7 +320,7 @@ export const SpeechToSign = () => {
         )}
       </div>
 
-      {/* Matched Sign Language Clips */}
+      {/* Matched Sign Language Sequences */}
       <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-4 shadow-lg space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <h4 className="text-sm font-bold text-white flex items-center gap-2">
@@ -221,22 +332,30 @@ export const SpeechToSign = () => {
           </span>
         </div>
 
+        {/* No Direct Match State */}
         {matchedSigns.length === 0 && spokenText && (
-          <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 text-center space-y-2">
+          <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-center space-y-2.5">
             <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
             <p className="text-sm font-bold text-amber-300">
               {isEn
-                ? 'No approved sign found in the phrasebook for this speech.'
-                : 'આ વાણી માટે શબ્દકોષમાં કોઈ માન્ય સાઇન સંકેત મળ્યો નથી.'}
+                ? 'No matching signs found in dictionary.'
+                : 'આ વાણી માટે શબ્દકોષમાં કોઈ સંકેત મળ્યો નથી.'}
             </p>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            {unmatchedWords.length > 0 && (
+              <p className="text-xs text-slate-300 max-w-sm mx-auto">
+                {isEn ? 'Unsupported words: ' : 'ઉપલબ્ધ ન હોય તેવા શબ્દો: '}
+                <span className="font-semibold text-slate-200">{unmatchedWords.join(', ')}</span>
+              </p>
+            )}
+            <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed">
               {isEn
-                ? 'The starter dictionary covers core greetings and school terms. Try "નમસ્તે", "હું વિદ્યાર્થી છું", or "મને મદદ જોઈએ છે".'
-                : 'પ્રારંભિક શબ્દકોષ શાળા અને અભિવાદન શબ્દો આવરી લે છે. "નમસ્તે", "હું વિદ્યાર્થી છું", અથવા "મને મદદ જોઈએ છે" અજમાવો.'}
+                ? 'The current dictionary covers curated greetings, school phrases, numbers (1-10), and select vocabulary words. Additional signs will be added in future updates.'
+                : 'હાલનો શબ્દકોષ મુખ્ય અભિવાદન, શાળા વાક્યો, અંકો (૧-૧૦) અને પસંદગીના શબ્દો આવરી લે છે. વધુ સંકેતો ભવિષ્યમાં ઉમેરવામાં આવશે.'}
             </p>
           </div>
         )}
 
+        {/* Idle prompt before speech */}
         {matchedSigns.length === 0 && !spokenText && (
           <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 text-center text-xs text-slate-400">
             {isEn
@@ -245,42 +364,90 @@ export const SpeechToSign = () => {
           </div>
         )}
 
+        {/* Matched Sign Grid */}
         {matchedSigns.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {matchedSigns.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between space-y-2"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h5 className="font-extrabold text-amber-300 text-sm">{item.gujarati}</h5>
-                    <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
-                      {item.category}
-                    </span>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {matchedSigns.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between space-y-2.5"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <h5 className="font-extrabold text-amber-300 text-sm">{item.gujarati}</h5>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          item.matchType === 'phrase'
+                            ? 'bg-purple-900/60 text-purple-200 border border-purple-500/30'
+                            : item.matchType === 'number'
+                            ? 'bg-blue-900/60 text-blue-200 border border-blue-500/30'
+                            : 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/30'
+                        }`}
+                      >
+                        {item.matchType === 'phrase'
+                          ? (isEn ? 'Full Phrase' : 'વાક્ય સંકેત')
+                          : item.matchType === 'number'
+                          ? (isEn ? 'Number' : 'સંખ્યા સંકેત')
+                          : (isEn ? 'Word' : 'શબ્દ સંકેત')}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <span>{item.english}</span>
+                      <span>•</span>
+                      <span className="text-slate-500">{item.category}</span>
+                    </div>
+
+                    <p className="text-xs text-slate-200 leading-relaxed font-medium pt-0.5">
+                      {item.signDescription}
+                    </p>
+
+                    {item.handShape && (
+                      <p className="text-[11px] text-amber-300/90 font-medium">
+                        ✋ {item.handShape}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    {item.signDescription}
+
+                  <button
+                    onClick={() => {
+                      setActiveVideoModal({
+                        title: item.gujarati,
+                        gujarati: item.gujarati,
+                        english: item.english,
+                        signDescription: item.signDescription,
+                        handShape: item.handShape,
+                        meaning: item.meaning,
+                        category: item.category
+                      });
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition mt-1 active:scale-95"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'View Sign Guide' : 'સાઇન માર્ગદર્શિકા જુઓ'}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Notice for unsupported words in an otherwise matched sentence */}
+            {unmatchedWords.length > 0 && (
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-amber-300">
+                    {isEn ? 'Unsupported words:' : 'શબ્દકોષમાં ઉપલબ્ધ ન હોય તેવા શબ્દો:'}
+                  </span>{' '}
+                  <span className="font-semibold text-slate-200">{unmatchedWords.join(', ')}</span>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {isEn
+                      ? 'These words are currently not in the curated sign dictionary.'
+                      : 'આ શબ્દો માટે હાલના શબ્દકોષમાં સંકેત ઉપલબ્ધ નથી.'}
                   </p>
                 </div>
-
-                <button
-                  onClick={() => {
-                    setActiveVideoModal({
-                      title: item.gujarati,
-                      gujarati: item.gujarati,
-                      english: item.english,
-                      signDescription: item.signDescription,
-                      category: item.category
-                    });
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition mt-1"
-                >
-                  <Video className="w-3.5 h-3.5" />
-                  <span>{isEn ? 'Play Sign Video' : 'સાઇન વિડીયો ચલાવો'}</span>
-                </button>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
