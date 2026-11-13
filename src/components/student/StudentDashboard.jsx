@@ -81,7 +81,7 @@ export const StudentDashboard = () => {
           <p className="text-xs sm:text-sm text-slate-300 max-w-md">
             {isEn 
               ? `You are on a ${student.currentStreak}-day learning streak! Ready to learn today?` 
-              : `આજે તમે ૬ દિવસની સ્ટ્રીક પર છો! આજે કયો વિષય શીખવા માંગો છો?`}
+              : `આજે તમે ${student.currentStreak} દિવસની સ્ટ્રીક પર છો! આજે કયો વિષય શીખવા માંગો છો?`}
           </p>
 
           {/* Quick Metrics Bar */}

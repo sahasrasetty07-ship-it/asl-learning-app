@@ -8,6 +8,7 @@ export const initialStudentData = {
   overallProgress: 78,
   totalStars: 142,
   currentStreak: 6, // days
+  activityDates: [], // YYYY-MM-DD list of active learning dates
   weeklyHours: 4.5,
   subjects: {
     gujarati: {

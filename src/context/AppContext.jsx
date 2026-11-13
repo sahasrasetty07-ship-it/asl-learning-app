@@ -4,6 +4,69 @@ import { initialStudentData, classStudents } from '../data/studentAnalytics';
 const AppContext = createContext();
 const STUDENT_KEY = 'gsl-student-v1';
 
+// Returns the current local calendar date formatted as YYYY-MM-DD (timezone-safe)
+export const getLocalDateString = (d = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Calculates current streak based on actual activity dates in local time
+export const calculateStreak = (activityDates = [], referenceDate = new Date()) => {
+  if (!Array.isArray(activityDates) || activityDates.length === 0) return 0;
+
+  const dateSet = new Set(activityDates);
+  const todayStr = getLocalDateString(referenceDate);
+
+  // Evaluate at noon to ensure robustness against clock skew and date boundaries
+  const ref = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+    12,
+    0,
+    0
+  );
+
+  let currentCheck = new Date(ref);
+  let streak = 0;
+
+  // Case 1: Practiced today -> count consecutive active days back from today
+  if (dateSet.has(todayStr)) {
+    while (true) {
+      const dateStr = getLocalDateString(currentCheck);
+      if (dateSet.has(dateStr)) {
+        streak++;
+        currentCheck.setDate(currentCheck.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // Case 2: Not yet practiced today -> check if streak is preserved from yesterday
+  currentCheck.setDate(currentCheck.getDate() - 1);
+  const yesterdayStr = getLocalDateString(currentCheck);
+
+  if (dateSet.has(yesterdayStr)) {
+    while (true) {
+      const dateStr = getLocalDateString(currentCheck);
+      if (dateSet.has(dateStr)) {
+        streak++;
+        currentCheck.setDate(currentCheck.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // Case 3: Neither today nor yesterday had activity -> streak is broken
+  return 0;
+};
+
 export const AppProvider = ({ children }) => {
   // Roles: 'student' | 'teacher' | 'parent'
   const [currentRole, setCurrentRole] = useState('student');
@@ -22,12 +85,28 @@ export const AppProvider = ({ children }) => {
   
   // Learning & Analytics State
   // Saved in the browser so progress and assignments survive a refresh.
-  // shortcut: one device, one demo student; move to the backend API when it exists.
   const [student, setStudent] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(STUDENT_KEY)) || initialStudentData;
+      const stored = JSON.parse(localStorage.getItem(STUDENT_KEY));
+      const baseData = (stored && typeof stored === 'object') ? stored : initialStudentData;
+
+      const activityDates = Array.isArray(baseData.activityDates)
+        ? baseData.activityDates
+        : [];
+
+      const currentStreak = calculateStreak(activityDates);
+
+      return {
+        ...baseData,
+        activityDates,
+        currentStreak
+      };
     } catch {
-      return initialStudentData;
+      return {
+        ...initialStudentData,
+        activityDates: [],
+        currentStreak: 0
+      };
     }
   });
   useEffect(() => {
@@ -90,9 +169,23 @@ export const AppProvider = ({ children }) => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
+      // When a meaningful learning activity is completed (isCorrect === true),
+      // record today's local date in activityDates and recalculate streak dynamically.
+      const todayStr = getLocalDateString();
+      const prevDates = Array.isArray(prev.activityDates) ? prev.activityDates : [];
+      let updatedDates = prevDates;
+
+      if (isCorrect && !prevDates.includes(todayStr)) {
+        updatedDates = [...prevDates, todayStr];
+      }
+
+      const updatedStreak = calculateStreak(updatedDates);
+
       return {
         ...prev,
         totalStars: prev.totalStars + (isCorrect ? points : 0),
+        activityDates: updatedDates,
+        currentStreak: updatedStreak,
         subjects: {
           ...prev.subjects,
           [subjectKey]: updatedSubject
